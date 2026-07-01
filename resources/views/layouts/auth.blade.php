@@ -16,18 +16,29 @@
 
     {{-- Toast notifications --}}
     @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4500)"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 translate-y-4"
              x-transition:enter-end="opacity-100 translate-y-0"
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 translate-y-2"
-             class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-800 text-white text-sm px-5 py-3 rounded-pill shadow-lg z-50 flex items-center gap-2">
-            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            {{ session('success') }}
+             class="fixed bottom-6 right-6 left-6 sm:left-auto max-w-sm bg-white dark:bg-slate-900 border border-emerald-500/20 dark:border-emerald-500/30 shadow-xl rounded-2xl p-4.5 z-50 flex items-start gap-4">
+            <div class="shrink-0 mt-0.5">
+                <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">SUKSES</p>
+                <p class="text-sm text-slate-700 dark:text-slate-200 mt-1.5 leading-relaxed">{{ session('success') }}</p>
+            </div>
+            <button @click="show = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 shrink-0 mt-0.5">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
     @endif
 
@@ -39,11 +50,22 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 translate-y-2"
-             class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white text-sm px-5 py-3 rounded-pill shadow-lg z-50 flex items-center gap-2">
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-            {{ session('error') }}
+             class="fixed bottom-6 right-6 left-6 sm:left-auto max-w-sm bg-white dark:bg-slate-900 border border-red-500/20 dark:border-red-500/30 shadow-xl rounded-2xl p-4.5 z-50 flex items-start gap-4">
+            <div class="shrink-0 mt-0.5">
+                <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01" />
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">KESALAHAN</p>
+                <p class="text-sm text-slate-700 dark:text-slate-200 mt-1.5 leading-relaxed">{{ session('error') }}</p>
+            </div>
+            <button @click="show = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 shrink-0 mt-0.5">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
     @endif
 

@@ -1,0 +1,313 @@
+Enum "posts_type_enum" {
+  "discussion"
+  "project"
+}
+
+Enum "posts_project_type_enum" {
+  "paid"
+  "unpaid"
+  "portfolio"
+}
+
+Enum "posts_status_enum" {
+  "pending"
+  "approved"
+  "rejected"
+  "closed"
+}
+
+Table "cache" {
+  "key" varchar(255) [pk, not null]
+  "value" mediumtext [not null]
+  "expiration" bigint [not null]
+
+  Indexes {
+    expiration [type: btree, name: "cache_expiration_index"]
+  }
+}
+
+Table "cache_locks" {
+  "key" varchar(255) [pk, not null]
+  "owner" varchar(255) [not null]
+  "expiration" bigint [not null]
+
+  Indexes {
+    expiration [type: btree, name: "cache_locks_expiration_index"]
+  }
+}
+
+Table "comments" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "post_id" "bigint unsigned" [not null]
+  "user_id" "bigint unsigned" [not null]
+  "parent_id" "bigint unsigned"
+  "body" text [not null]
+  "created_at" timestamp
+  "updated_at" timestamp
+
+  Indexes {
+    (post_id, created_at) [type: btree, name: "comments_post_id_created_at_index"]
+  }
+}
+
+Table "email_verification_tokens" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "email" varchar(255) [not null]
+  "token" varchar(64) [unique, not null]
+  "expires_at" timestamp [not null]
+  "used_at" timestamp
+  "created_at" timestamp
+  "updated_at" timestamp
+
+  Indexes {
+    email [type: btree, name: "email_verification_tokens_email_index"]
+  }
+}
+
+Table "failed_jobs" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "uuid" varchar(255) [unique, not null]
+  "connection" varchar(255) [not null]
+  "queue" varchar(255) [not null]
+  "payload" longtext [not null]
+  "exception" longtext [not null]
+  "failed_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (connection, queue, failed_at) [type: btree, name: "failed_jobs_connection_queue_failed_at_index"]
+  }
+}
+
+Table "follows" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "follower_id" "bigint unsigned" [not null]
+  "following_id" "bigint unsigned" [not null]
+  "created_at" timestamp
+
+  Indexes {
+    (follower_id, following_id) [unique, name: "follows_follower_id_following_id_unique"]
+  }
+}
+
+Table "info_hub" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "title" varchar(255)
+  "poster_image" varchar(255)
+  "poster_link" varchar(255)
+  "is_active" tinyint(1) [not null, default: 1]
+  "created_at" timestamp
+  "updated_at" timestamp
+}
+
+Table "job_batches" {
+  "id" varchar(255) [pk, not null]
+  "name" varchar(255) [not null]
+  "total_jobs" int [not null]
+  "pending_jobs" int [not null]
+  "failed_jobs" int [not null]
+  "failed_job_ids" longtext [not null]
+  "options" mediumtext
+  "cancelled_at" int
+  "created_at" int [not null]
+  "finished_at" int
+}
+
+Table "jobs" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "queue" varchar(255) [not null]
+  "payload" longtext [not null]
+  "attempts" "smallint unsigned" [not null]
+  "reserved_at" "int unsigned"
+  "available_at" "int unsigned" [not null]
+  "created_at" "int unsigned" [not null]
+
+  Indexes {
+    queue [type: btree, name: "jobs_queue_index"]
+  }
+}
+
+Table "migrations" {
+  "id" "int unsigned" [pk, not null, increment]
+  "migration" varchar(255) [not null]
+  "batch" int [not null]
+}
+
+Table "notifications" {
+  "id" char(36) [pk, not null]
+  "type" varchar(255) [not null]
+  "notifiable_type" varchar(255) [not null]
+  "notifiable_id" "bigint unsigned" [not null]
+  "data" text [not null]
+  "read_at" timestamp
+  "created_at" timestamp
+  "updated_at" timestamp
+
+  Indexes {
+    (notifiable_type, notifiable_id) [type: btree, name: "notifications_notifiable_type_notifiable_id_index"]
+  }
+}
+
+Table "otp_verifications" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "email" varchar(255) [not null]
+  "code" varchar(6) [not null]
+  "expires_at" timestamp [not null]
+  "used_at" timestamp
+  "created_at" timestamp
+
+  Indexes {
+    email [type: btree, name: "otp_verifications_email_index"]
+  }
+}
+
+Table "password_reset_tokens" {
+  "email" varchar(255) [pk, not null]
+  "token" varchar(255) [not null]
+  "created_at" timestamp
+}
+
+Table "post_interests" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "post_id" "bigint unsigned" [not null]
+  "user_id" "bigint unsigned" [not null]
+  "created_at" timestamp
+
+  Indexes {
+    (post_id, user_id) [unique, name: "post_interests_post_id_user_id_unique"]
+  }
+}
+
+Table "post_likes" {
+  "post_id" "bigint unsigned" [not null]
+  "user_id" "bigint unsigned" [not null]
+
+  Indexes {
+    (post_id, user_id) [pk, name: "PRIMARY"]
+  }
+}
+
+Table "post_skills" {
+  "post_id" "bigint unsigned" [not null]
+  "skill_id" "bigint unsigned" [not null]
+
+  Indexes {
+    (post_id, skill_id) [pk, name: "PRIMARY"]
+  }
+}
+
+Table "posts" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "user_id" "bigint unsigned" [not null]
+  "type" posts_type_enum [not null]
+  "title" varchar(255)
+  "body" text [not null]
+  "image" varchar(255)
+  "deadline" date
+  "campus_area" varchar(255)
+  "project_type" posts_project_type_enum
+  "is_active" tinyint(1) [not null, default: 1]
+  "status" posts_status_enum [not null, default: 'pending']
+  "created_at" timestamp
+  "updated_at" timestamp
+
+  Indexes {
+    created_at [type: btree, name: "posts_created_at_index"]
+    (type, is_active) [type: btree, name: "posts_type_is_active_index"]
+  }
+}
+
+Table "sessions" {
+  "id" varchar(255) [pk, not null]
+  "user_id" "bigint unsigned"
+  "ip_address" varchar(45)
+  "user_agent" text
+  "payload" longtext [not null]
+  "last_activity" int [not null]
+
+  Indexes {
+    last_activity [type: btree, name: "sessions_last_activity_index"]
+    user_id [type: btree, name: "sessions_user_id_index"]
+  }
+}
+
+Table "skills" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "name" varchar(255) [unique, not null]
+  "created_at" timestamp
+  "updated_at" timestamp
+}
+
+Table "social_links" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "user_id" "bigint unsigned" [not null]
+  "platform" varchar(255) [not null]
+  "url" varchar(255) [not null]
+  "created_at" timestamp
+  "updated_at" timestamp
+
+  Indexes {
+    (user_id, platform) [unique, name: "social_links_user_id_platform_unique"]
+  }
+}
+
+Table "user_skills" {
+  "user_id" "bigint unsigned" [not null]
+  "skill_id" "bigint unsigned" [not null]
+
+  Indexes {
+    (user_id, skill_id) [pk, name: "PRIMARY"]
+  }
+}
+
+Table "users" {
+  "id" "bigint unsigned" [pk, not null, increment]
+  "name" varchar(255) [not null]
+  "email" varchar(255) [unique, not null]
+  "email_verified_at" timestamp
+  "password" varchar(255) [not null]
+  "nim" varchar(255) [unique]
+  "program" varchar(255)
+  "semester" "tinyint unsigned"
+  "campus_area" varchar(255)
+  "bio" text
+  "avatar" varchar(255)
+  "cover" varchar(255)
+  "dark_mode" tinyint(1) [not null, default: 0]
+  "is_admin" tinyint(1) [not null, default: 0]
+  "is_active" tinyint(1) [not null, default: 1]
+  "is_verified" tinyint(1) [not null, default: 0]
+  "onboarding_completed" tinyint(1) [not null, default: 0]
+  "remember_token" varchar(100)
+  "created_at" timestamp
+  "updated_at" timestamp
+}
+
+Ref "comments_parent_id_foreign":"comments"."id" < "comments"."parent_id" [delete: cascade]
+
+Ref "comments_post_id_foreign":"posts"."id" < "comments"."post_id" [delete: cascade]
+
+Ref "comments_user_id_foreign":"users"."id" < "comments"."user_id" [delete: cascade]
+
+Ref "follows_follower_id_foreign":"users"."id" < "follows"."follower_id" [delete: cascade]
+
+Ref "follows_following_id_foreign":"users"."id" < "follows"."following_id" [delete: cascade]
+
+Ref "post_interests_post_id_foreign":"posts"."id" < "post_interests"."post_id" [delete: cascade]
+
+Ref "post_interests_user_id_foreign":"users"."id" < "post_interests"."user_id" [delete: cascade]
+
+Ref "post_likes_post_id_foreign":"posts"."id" < "post_likes"."post_id" [delete: cascade]
+
+Ref "post_likes_user_id_foreign":"users"."id" < "post_likes"."user_id" [delete: cascade]
+
+Ref "post_skills_post_id_foreign":"posts"."id" < "post_skills"."post_id" [delete: cascade]
+
+Ref "post_skills_skill_id_foreign":"skills"."id" < "post_skills"."skill_id" [delete: cascade]
+
+Ref "posts_user_id_foreign":"users"."id" < "posts"."user_id" [delete: cascade]
+
+Ref "social_links_user_id_foreign":"users"."id" < "social_links"."user_id" [delete: cascade]
+
+Ref "user_skills_skill_id_foreign":"skills"."id" < "user_skills"."skill_id" [delete: cascade]
+
+Ref "user_skills_user_id_foreign":"users"."id" < "user_skills"."user_id" [delete: cascade]

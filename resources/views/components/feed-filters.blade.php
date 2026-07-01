@@ -6,9 +6,7 @@
 
 <div x-data="desktopFilters()" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-card p-5 sticky top-20">
     <h3 class="text-sm font-bold font-heading text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
-        </svg>
+        <x-ui.icon name="filter" class="w-4 h-4 text-gray-400" stroke-width="2" />
         Filter
         <button @click="resetAll" class="ml-auto text-[10px] font-normal text-primary hover:underline" x-show="hasActiveFilters">
             Reset

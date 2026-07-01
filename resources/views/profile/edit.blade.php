@@ -19,28 +19,31 @@
         @csrf
         @method('PUT')
 
-        {{-- ═══════ Cover Upload ═══════ --}}
-        <div class="relative mb-10 rounded-card overflow-hidden bg-gray-100 dark:bg-slate-800 h-[120px] md:h-[150px] group cursor-pointer"
-             @click="$refs.coverInput.click()">
-            <img :src="coverPreview || '{{ $user->cover_url }}'"
-                 alt="Cover"
-                 class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div class="text-white text-center">
-                    <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/>
-                    </svg>
-                    <span class="text-xs font-medium">Ubah Sampul</span>
+        {{-- ═══════ Cover & Avatar Upload Container ═══════ --}}
+        <div class="relative mb-16">
+            {{-- Cover Upload --}}
+            <div class="relative rounded-card overflow-hidden bg-gray-100 dark:bg-slate-800 h-[120px] md:h-[150px] group cursor-pointer"
+                 @click="$refs.coverInput.click()">
+                <img :src="coverPreview || '{{ $user->cover_url }}'"
+                     alt="Cover"
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div class="text-white text-center">
+                        <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Ubah Sampul</span>
+                    </div>
                 </div>
+                <input type="file" name="cover" x-ref="coverInput" class="hidden" accept="image/*"
+                       @change="previewCover($event)">
             </div>
-            <input type="file" name="cover" x-ref="coverInput" class="hidden" accept="image/*"
-                   @change="previewCover($event)">
 
             {{-- Avatar Upload (overlapping cover) --}}
-            <div class="absolute -bottom-[30px] left-4 md:left-6"
+            <div class="absolute -bottom-[36px] left-4 md:left-6 z-10"
                  @click.stop="$refs.avatarInput.click()">
-                <div class="relative w-[72px] h-[72px] rounded-full border-4 border-white dark:border-slate-900 overflow-hidden bg-primary-light shadow-sm group/avatar cursor-pointer">
+                <div class="relative w-[72px] h-[72px] md:w-[84px] md:h-[84px] rounded-full border-4 border-white dark:border-slate-900 overflow-hidden bg-primary-light shadow-sm group/avatar cursor-pointer">
                     <img :src="avatarPreview || '{{ $user->avatar_url }}'"
                          alt="{{ $user->name }}"
                          class="w-full h-full object-cover">
@@ -121,12 +124,33 @@
                     :value="old('semester', $user->semester)"
                     :error="$errors->first('semester')" />
 
-                <x-ui.input
-                    name="campus_area"
-                    label="Kampus"
-                    placeholder="Contoh: Kramat 98"
-                    :value="old('campus_area', $user->campus_area)"
-                    :error="$errors->first('campus_area')" />
+                <div class="space-y-1.5">
+                    <label for="campus_area" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Kampus Area</label>
+                    <div class="relative">
+                        <select id="campus_area" name="campus_area"
+                                class="w-full h-12 rounded-input border border-border dark:border-gray-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-gray-900 dark:text-slate-100 transition-shadow duration-150 focus:outline-none focus:border-primary focus:shadow-focus appearance-none
+                                       {{ $errors->has('campus_area') ? 'border-red-500' : '' }}">
+                            <option value="">Pilih Kampus Area</option>
+                            @foreach($campusAreas as $region => $campuses)
+                                <optgroup label="{{ $region }}" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">
+                                    @foreach($campuses as $campus)
+                                        <option value="{{ $campus->code }}" {{ old('campus_area', $user->campus_area) == $campus->code ? 'selected' : '' }}>
+                                            {{ $campus->name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    @if($errors->has('campus_area'))
+                        <p class="text-xs text-red-500 mt-1">{{ $errors->first('campus_area') }}</p>
+                    @endif
+                </div>
             </div>
 
             {{-- ═══════ Skills Selector ═══════ --}}

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Post extends Model
 {
@@ -23,13 +22,15 @@ class Post extends Model
         'campus_area',
         'project_type',
         'is_active',
+        'status',
     ];
 
     protected function casts(): array
     {
         return [
-            'deadline' => 'date',
+            'deadline'  => 'date',
             'is_active' => 'boolean',
+            'status'    => 'string',
         ];
     }
 
@@ -58,11 +59,6 @@ class Post extends Model
     public function likes(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'post_likes');
-    }
-
-    public function reports(): MorphMany
-    {
-        return $this->morphMany(Report::class, 'reportable');
     }
 
     // ─── Scopes ──────────────────────────────────────────────

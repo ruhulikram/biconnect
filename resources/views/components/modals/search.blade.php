@@ -2,8 +2,8 @@
      x-show="open"
      @open-search.window="openSearch()"
      @keydown.escape.window="closeSearch()"
-     @keydown.ctrl.k.prevent="openSearch()"
-     @keydown.meta.k.prevent="openSearch()"
+     @keydown.ctrl.k.window.prevent="openSearch()"
+     @keydown.meta.k.window.prevent="openSearch()"
      class="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]"
      style="display: none;">
 

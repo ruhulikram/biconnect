@@ -53,7 +53,7 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-850 transition-colors" id="user-row-{{ $user->id }}">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <img src="{{ $user->avatar_url }}" alt="" class="w-9 h-9 rounded-full shrink-0 object-cover border border-gray-100 dark:border-gray-800">
+                                    <x-ui.avatar :src="$user->avatar_url" size="sm" class="border border-gray-100 dark:border-gray-800" />
                                     <div class="min-w-0">
                                         <span class="font-bold text-gray-900 dark:text-white block truncate">{{ $user->name }}</span>
                                         @if($user->is_admin)

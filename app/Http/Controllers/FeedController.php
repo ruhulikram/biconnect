@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campus;
 use App\Models\Post;
 use App\Models\Skill;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class FeedController extends Controller
         $query = Post::query()
             ->with(['user', 'skills'])
             ->withCount(['comments', 'likes', 'interests'])
+            ->where('status', 'approved')
             ->active();
 
         // 1. Filter by Post Type (from route tab or filter sheet)
@@ -56,17 +58,8 @@ class FeedController extends Controller
         // Fetch all skills for the filter sheet
         $allSkills = Skill::orderBy('name')->get();
 
-        // Standard BSI Campus Areas
-        $campusAreas = [
-            'Kramat 98' => 'Kramat 98 (Pusat)',
-            'Margonda' => 'Margonda (Depok)',
-            'Cengkareng' => 'Cengkareng (Jakarta Barat)',
-            'Jatiwaringin' => 'Jatiwaringin (Jakarta Timur)',
-            'Kaliabang' => 'Kaliabang (Bekasi)',
-            'Salemba 22' => 'Salemba 22 (Jakarta Pusat)',
-            'Ciledug' => 'Ciledug (Tangerang)',
-            'Fatmawati' => 'Fatmawati (Jakarta Selatan)'
-        ];
+        // Fetch campus areas from database
+        $campusAreas = Campus::pluck('name', 'code')->toArray();
 
         return view('feed.index', compact('posts', 'allSkills', 'campusAreas'));
     }

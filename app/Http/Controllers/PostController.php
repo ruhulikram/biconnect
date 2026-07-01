@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
+use App\Models\Campus;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostInterest;
@@ -21,16 +22,7 @@ class PostController extends Controller
     {
         $skills = Skill::orderBy('name')->get();
 
-        $campusAreas = [
-            'Kramat 98'    => 'Kramat 98 (Pusat)',
-            'Margonda'     => 'Margonda (Depok)',
-            'Cengkareng'   => 'Cengkareng (Jakarta Barat)',
-            'Jatiwaringin' => 'Jatiwaringin (Jakarta Timur)',
-            'Kaliabang'    => 'Kaliabang (Bekasi)',
-            'Salemba 22'   => 'Salemba 22 (Jakarta Pusat)',
-            'Ciledug'      => 'Ciledug (Tangerang)',
-            'Fatmawati'    => 'Fatmawati (Jakarta Selatan)',
-        ];
+        $campusAreas = Campus::pluck('name', 'code')->toArray();
 
         return view('post.create', compact('skills', 'campusAreas'));
     }
@@ -48,6 +40,10 @@ class PostController extends Controller
             $imagePath = $request->file('image')->store('posts', 'public');
         }
 
+        // Determine approval status based on post type
+        // Discussions: directly published. Projects: need admin approval.
+        $isProject = ($validated['type'] ?? 'discussion') === 'project';
+
         // Create the post
         $post = Post::create([
             'user_id'      => auth()->id(),
@@ -58,7 +54,8 @@ class PostController extends Controller
             'deadline'     => $validated['deadline'] ?? null,
             'campus_area'  => $validated['campus_area'] ?? null,
             'project_type' => $validated['project_type'] ?? null,
-            'is_active'    => true,
+            'is_active'    => ! $isProject,
+            'status'       => $isProject ? 'pending' : 'approved',
         ]);
 
         // Sync skills
@@ -66,9 +63,13 @@ class PostController extends Controller
             $post->skills()->sync($validated['skills']);
         }
 
+        $message = $isProject
+            ? 'Project berhasil diunggah! Menunggu persetujuan admin sebelum ditampilkan. 🎉'
+            : 'Diskusi berhasil dipublikasikan! 🎉';
+
         return redirect()
             ->route('feed.index')
-            ->with('success', 'Post berhasil dipublikasikan! 🎉');
+            ->with('success', $message);
     }
 
     /**
@@ -95,6 +96,25 @@ class PostController extends Controller
         }
 
         return view('post.show', compact('post', 'alreadyInterested'));
+    }
+
+    /**
+     * Close a project (only by the owner).
+     */
+    public function close(Post $post): RedirectResponse
+    {
+        if ($post->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($post->type !== 'project') {
+            abort(404);
+        }
+
+        $post->update(['status' => 'closed', 'is_active' => false]);
+
+        return redirect()->route('profile.show')
+            ->with('success', 'Project berhasil ditutup.');
     }
 
     /**
@@ -141,6 +161,9 @@ class PostController extends Controller
             'post_id' => $post->id,
             'user_id' => auth()->id(),
         ]);
+
+        // Notify the project owner
+        $post->user->notify(new \App\Notifications\NewInterest($post, auth()->user()));
 
         return back()->with('success', 'Ketertarikan berhasil dikirim! Pemilik project akan menghubungi Anda. 🤝');
     }

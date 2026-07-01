@@ -6,12 +6,15 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\InfoHubController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\SearchController;
 
 Route::get('/', [LandingController::class, 'index'])->name('landing');
@@ -33,6 +36,17 @@ Route::middleware('guest')->group(function () {
     // Login
     Route::get('/masuk', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/masuk', [AuthController::class, 'login'])->name('auth.do-login');
+
+    // Email Verification
+    Route::get('/verifikasi-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/verifikasi-email/{token}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('/verifikasi-email/kirim-ulang', [EmailVerificationController::class, 'resend'])->name('verification.resend');
+
+    // Forgot / Reset Password
+    Route::get('/lupa-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/lupa-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
 // ─── Logout (Auth only) ──────────────────────────────────────
@@ -68,6 +82,10 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
     // Post Interactions
     Route::post('/post/{post}/tertarik', [PostController::class, 'storeInterest'])
         ->name('interest.store');
+    Route::post('/post/{post}/like', [LikeController::class, 'toggle'])
+        ->name('post.like');
+    Route::post('/post/{post}/tutup', [PostController::class, 'close'])
+        ->name('post.close');
     Route::post('/post/{post}/komentar', [PostController::class, 'storeComment'])
         ->name('post.comment');
 
@@ -88,10 +106,6 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
     Route::get('/pengaturan', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/pengaturan/dark-mode', [SettingsController::class, 'updateDarkMode'])->name('settings.dark-mode');
 
-    // Reports
-    Route::get('/laporkan', [ReportController::class, 'create'])->name('report.create');
-    Route::post('/laporkan', [ReportController::class, 'store'])->name('report.store');
-
     // Search
     Route::get('/search', [SearchController::class, 'search'])->name('search');
 });
@@ -101,8 +115,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/pengguna', [AdminController::class, 'users'])->name('admin.users');
     Route::post('/pengguna/{user}/toggle', [AdminController::class, 'toggleUserStatus'])->name('admin.toggle-user');
-    Route::get('/laporan', [AdminController::class, 'reports'])->name('admin.reports');
-    Route::put('/laporan/{report}', [AdminController::class, 'handleReport'])->name('admin.handle-report');
+
+    // Project Approval
+    Route::get('/projects', [AdminController::class, 'pendingProjects'])->name('admin.projects');
+    Route::post('/projects/{post}/approve', [AdminController::class, 'approveProject'])->name('admin.approve-project');
+    Route::post('/projects/{post}/reject', [AdminController::class, 'rejectProject'])->name('admin.reject-project');
+
+    // All Posts Management
+    Route::get('/posts', [AdminController::class, 'allPosts'])->name('admin.posts');
+
+    // Informasi Kampus (Info Hub)
+    Route::get('/informasi-kampus', [AdminController::class, 'infoKampus'])->name('admin.info-kampus');
 
     // Info Hub poster management
     Route::post('/info-hub', [InfoHubController::class, 'store'])->name('admin.info-hub.store');

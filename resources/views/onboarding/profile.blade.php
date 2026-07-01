@@ -96,35 +96,15 @@
                                {{ $errors->has('campus_area') ? 'border-red-500' : 'border-border' }}">
                     <option value="" disabled {{ old('campus_area', $user->campus_area) ? '' : 'selected' }}>Pilih Kampus Area</option>
                     
-                    <optgroup label="Wilayah DKI Jakarta">
-                        <option value="Kampus Rektorat/Kramat 98" {{ old('campus_area', $user->campus_area) == 'Kampus Rektorat/Kramat 98' ? 'selected' : '' }}>Kramat 98 (Rektorat) - Jakarta Pusat</option>
-                        <option value="Kampus Kramat 18" {{ old('campus_area', $user->campus_area) == 'Kampus Kramat 18' ? 'selected' : '' }}>Kramat 18 - Jakarta Pusat</option>
-                        <option value="Kampus Salemba" {{ old('campus_area', $user->campus_area) == 'Kampus Salemba' ? 'selected' : '' }}>Salemba - Jakarta Pusat</option>
-                        <option value="Kampus Dewi Sartika (Cawang)" {{ old('campus_area', $user->campus_area) == 'Kampus Dewi Sartika (Cawang)' ? 'selected' : '' }}>Dewi Sartika (Cawang) - Jakarta Timur</option>
-                        <option value="Kampus Kalimalang" {{ old('campus_area', $user->campus_area) == 'Kampus Kalimalang' ? 'selected' : '' }}>Kalimalang - Jakarta Timur</option>
-                        <option value="Kampus Fatmawati" {{ old('campus_area', $user->campus_area) == 'Kampus Fatmawati' ? 'selected' : '' }}>Fatmawati - Jakarta Selatan</option>
-                        <option value="Kampus Cengkareng" {{ old('campus_area', $user->campus_area) == 'Kampus Cengkareng' ? 'selected' : '' }}>Cengkareng - Jakarta Barat</option>
-                        <option value="Kampus Pemuda (Rawamangun)" {{ old('campus_area', $user->campus_area) == 'Kampus Pemuda (Rawamangun)' ? 'selected' : '' }}>Pemuda (Rawamangun) - Jakarta Timur</option>
-                        <option value="Kampus Jatiwaringin" {{ old('campus_area', $user->campus_area) == 'Kampus Jatiwaringin' ? 'selected' : '' }}>Jatiwaringin - Jakarta Timur</option>
-                        <option value="Kampus Ciledug" {{ old('campus_area', $user->campus_area) == 'Kampus Ciledug' ? 'selected' : '' }}>Ciledug - Jakarta</option>
-                    </optgroup>
-
-                    <optgroup label="Wilayah Jawa Barat & Banten">
-                        <option value="Kampus Bekasi" {{ old('campus_area', $user->campus_area) == 'Kampus Bekasi' ? 'selected' : '' }}>Bekasi - Rawalumbu</option>
-                        <option value="Kampus BSD" {{ old('campus_area', $user->campus_area) == 'Kampus BSD' ? 'selected' : '' }}>BSD - Tangerang Selatan</option>
-                        <option value="Kampus Margonda" {{ old('campus_area', $user->campus_area) == 'Kampus Margonda' ? 'selected' : '' }}>Margonda - Depok</option>
-                        <option value="Kampus Sukabumi" {{ old('campus_area', $user->campus_area) == 'Kampus Sukabumi' ? 'selected' : '' }}>Sukabumi</option>
-                        <option value="Kampus Karawang" {{ old('campus_area', $user->campus_area) == 'Kampus Karawang' ? 'selected' : '' }}>Karawang</option>
-                        <option value="Kampus Cikampek" {{ old('campus_area', $user->campus_area) == 'Kampus Cikampek' ? 'selected' : '' }}>Cikampek</option>
-                        <option value="Kampus Cibitung" {{ old('campus_area', $user->campus_area) == 'Kampus Cibitung' ? 'selected' : '' }}>Cibitung - Bekasi</option>
-                    </optgroup>
-
-                    <optgroup label="PSDKU (Program Studi di Luar Kampus Utama)">
-                        <option value="Kampus Purwokerto" {{ old('campus_area', $user->campus_area) == 'Kampus Purwokerto' ? 'selected' : '' }}>Purwokerto</option>
-                        <option value="Kampus Surakarta (Solo)" {{ old('campus_area', $user->campus_area) == 'Kampus Surakarta (Solo)' ? 'selected' : '' }}>Surakarta (Solo)</option>
-                        <option value="Kampus Yogyakarta" {{ old('campus_area', $user->campus_area) == 'Kampus Yogyakarta' ? 'selected' : '' }}>Yogyakarta</option>
-                        <option value="Kampus Pontianak" {{ old('campus_area', $user->campus_area) == 'Kampus Pontianak' ? 'selected' : '' }}>Pontianak</option>
-                    </optgroup>
+                    @foreach($campusAreas as $region => $campuses)
+                        <optgroup label="{{ $region }}">
+                            @foreach($campuses as $campus)
+                                <option value="{{ $campus->code }}" {{ old('campus_area', $user->campus_area) == $campus->code ? 'selected' : '' }}>
+                                    {{ $campus->name }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
                 </select>
                 {{-- Arrow icon --}}
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">

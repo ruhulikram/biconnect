@@ -5,9 +5,9 @@
 <div class="space-y-6" x-data="{ showPassword: false }">
 
     {{-- Logo --}}
-    <div class="flex justify-center">
+    <a href="{{ url('/') }}" class="flex justify-center">
         <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect" class="h-10 w-auto">
-    </div>
+    </a>
 
     {{-- Heading --}}
     <div class="text-center">
@@ -104,7 +104,7 @@
 
         {{-- Forgot password link --}}
         <div class="text-center mt-3">
-            <a href="#" class="text-xs text-primary hover:text-primary-dark transition-colors font-medium">Lupa password?</a>
+            <a href="{{ route('password.request') }}" class="text-xs text-primary hover:text-primary-dark transition-colors font-medium">Lupa password?</a>
         </div>
     </form>
 

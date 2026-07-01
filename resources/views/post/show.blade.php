@@ -16,10 +16,26 @@
         <div class="flex items-center gap-1">
             {{-- Share --}}
             <button class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onclick="if(navigator.share) { navigator.share({ title: '{{ $post->title ?? 'Post BiConnect' }}', url: window.location.href }) } else { navigator.clipboard.writeText(window.location.href); alert('Link berhasil disalin!') }">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l5.577-3.253m-5.577 5.44l5.577 3.253m0-8.693a2.25 2.25 0 103.58 2.207V7.5a2.25 2.25 0 00-3.58-2.207m0 0a2.25 2.25 0 100-2.207"/>
-                </svg>
+                    onclick="sharePost('{{ addslashes($post->title ?? 'Post BiConnect') }}', window.location.href)">
+                <x-ui.icon name="share" class="w-5 h-5" stroke-width="1.5" />
+            </button>
+
+            {{-- Like --}}
+            @php
+                $detailIsLiked = auth()->check() && auth()->user()->likedPosts->contains($post->id);
+            @endphp
+            <button @click="
+                    liked = !liked;
+                    liked ? count++ : count--;
+                    fetch('{{ route('post.like', $post) }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
+                    }).then(r => r.json()).then(d => { liked = d.liked; count = d.count; });
+                "
+                x-data="{ liked: {{ $detailIsLiked ? 'true' : 'false' }}, count: {{ $post->likes_count ?? 0 }} }"
+                :class="liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'"
+                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <x-ui.icon name="like" class="w-5 h-5" x-bind:fill="liked ? 'currentColor' : 'none'" stroke-width="2" />
             </button>
 
             {{-- Three-dot Menu --}}
@@ -33,13 +49,20 @@
                 <div x-show="open" x-transition
                      class="absolute right-0 mt-1 w-44 bg-white dark:bg-gray-800 border border-border dark:border-gray-700 rounded-lg shadow-lg py-1 z-10"
                      style="display: none;">
-                    <button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5"/>
-                        </svg>
-                        Laporkan Post
-                    </button>
                     @if($post->user_id === auth()->id())
+                        {{-- Close Project (owner only, approved projects only) --}}
+                        @if($post->type === 'project' && $post->status === 'approved')
+                            <form action="{{ route('post.close', $post) }}" method="POST"
+                                  onsubmit="return confirm('Yakin ingin menutup project ini? Project tidak akan tampil di feed.')">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Tutup Project
+                                </button>
+                            </form>
+                        @endif
                         <form action="{{ route('post.destroy', $post) }}" method="POST"
                               onsubmit="return confirm('Yakin ingin menghapus post ini?')">
                             @csrf @method('DELETE')
@@ -55,6 +78,25 @@
             </div>
         </div>
     </div>
+
+    {{-- Status Banner (for project posts) --}}
+    @if($post->type === 'project' && $post->status !== 'approved')
+        <div class="mb-4 px-4 py-3 rounded-xl border text-sm font-semibold flex items-center gap-3
+                    {{ $post->status === 'pending' ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/20 dark:border-amber-800 dark:text-amber-400' : '' }}
+                    {{ $post->status === 'rejected' ? 'bg-red-50 border-red-200 text-red-700 dark:bg-red-950/20 dark:border-red-800 dark:text-red-400' : '' }}
+                    {{ $post->status === 'closed' ? 'bg-gray-100 border-gray-200 text-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400' : '' }}">
+            @if($post->status === 'pending')
+                <svg class="w-5 h-5 shrink-0 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                <span>Project ini sedang <strong>menunggu persetujuan</strong> admin. Belum tampil di feed publik.</span>
+            @elseif($post->status === 'rejected')
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <span>Project ini <strong>ditolak</strong> oleh admin dan tidak tampil di feed.</span>
+            @elseif($post->status === 'closed')
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Project ini sudah <strong>ditutup</strong> dan tidak lagi menerima ketertarikan.</span>
+            @endif
+        </div>
+    @endif
 
     {{-- Post Content Card --}}
     <article class="bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card shadow-card overflow-hidden">
@@ -128,10 +170,7 @@
                     {{-- Area --}}
                     <div class="bg-gray-50 dark:bg-gray-950 rounded-lg p-3 text-center border border-border/50 dark:border-gray-800">
                         <div class="flex items-center justify-center text-gray-400 mb-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
-                            </svg>
+                            <x-ui.icon name="location" class="w-4 h-4" stroke-width="1.5" />
                         </div>
                         <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Area</p>
                         <p class="text-xs font-bold text-gray-900 dark:text-white mt-0.5">
@@ -294,11 +333,18 @@
     @endif
 </div>
 
-{{-- Sticky Bottom CTA (Project only) --}}
-@if($post->type === 'project' && $post->user_id !== auth()->id())
+{{-- Sticky Bottom CTA (Project only, approved only) --}}
+@if($post->type === 'project' && $post->status === 'approved' && $post->user_id !== auth()->id())
     <div class="fixed bottom-16 md:bottom-0 inset-x-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-border dark:border-gray-800 z-30 safe-area-bottom">
         <div class="max-w-2xl mx-auto px-4 py-3">
-            @if($alreadyInterested)
+            @if($post->status === 'closed')
+                <div class="flex items-center justify-center gap-2 h-12 w-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-input text-sm font-semibold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Project Ditutup
+                </div>
+            @elseif($alreadyInterested)
                 <div class="flex items-center justify-center gap-2 h-12 w-full bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 rounded-input text-sm font-semibold border border-green-200 dark:border-green-900/40">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>

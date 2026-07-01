@@ -26,7 +26,7 @@ class UpdateProfileRequest extends FormRequest
             'bio'         => 'nullable|string|max:500',
             'program'     => 'nullable|string|max:100',
             'semester'    => 'nullable|integer|min:1|max:14',
-            'campus_area' => 'nullable|string|max:100',
+            'campus_area' => 'nullable|exists:campuses,code',
             'avatar'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'cover'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'skills'      => 'nullable|array',

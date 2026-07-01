@@ -10,9 +10,9 @@
 }">
 
     {{-- Logo --}}
-    <div class="flex justify-center">
+    <a href="{{ url('/') }}" class="flex justify-center">
         <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect" class="h-10 w-auto">
-    </div>
+    </a>
 
     {{-- Heading --}}
     <div class="text-center">

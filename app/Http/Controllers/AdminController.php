@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\InfoHub;
 use App\Models\Post;
 use App\Models\PostInterest;
-use App\Models\Report;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -15,22 +14,16 @@ use Illuminate\View\View;
 class AdminController extends Controller
 {
     /**
-     * Display the admin dashboard index with overview metrics,
-     * recent reports, and recent users.
+     * Display the admin dashboard index with overview metrics and recent users.
      */
     public function index(): View
     {
         $stats = [
             'total_users'      => User::count(),
-            'active_posts'     => Post::active()->count(),
-            'pending_reports'  => Report::pending()->count(),
+            'active_posts'     => Post::where('status', 'approved')->count(),
+            'pending_projects' => Post::where('type', 'project')->where('status', 'pending')->count(),
             'collaborations'   => PostInterest::count(),
         ];
-
-        $recentReports = Report::with(['reporter', 'reportable'])
-            ->latest()
-            ->take(10)
-            ->get();
 
         $recentUsers = User::latest()
             ->take(10)
@@ -38,7 +31,46 @@ class AdminController extends Controller
 
         $posters = InfoHub::latest()->get();
 
-        return view('admin.dashboard', compact('stats', 'recentReports', 'recentUsers', 'posters'));
+        return view('admin.dashboard', compact('stats', 'recentUsers', 'posters'));
+    }
+
+    /**
+     * Display pending project approvals.
+     */
+    public function pendingProjects(Request $request): View
+    {
+        $projects = Post::with(['user', 'skills'])
+            ->where('type', 'project')
+            ->where('status', 'pending')
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.projects', compact('projects'));
+    }
+
+    /**
+     * Approve a pending project.
+     */
+    public function approveProject(Post $post): RedirectResponse
+    {
+        abort_if($post->type !== 'project', 404);
+
+        $post->update(['status' => 'approved', 'is_active' => true]);
+
+        return back()->with('success', 'Project "' . $post->title . '" berhasil disetujui dan dipublikasikan.');
+    }
+
+    /**
+     * Reject a pending project.
+     */
+    public function rejectProject(Post $post): RedirectResponse
+    {
+        abort_if($post->type !== 'project', 404);
+
+        $post->update(['status' => 'rejected', 'is_active' => false]);
+
+        return back()->with('success', 'Project "' . $post->title . '" ditolak.');
     }
 
     /**
@@ -59,6 +91,44 @@ class AdminController extends Controller
             ->withQueryString();
 
         return view('admin.users', compact('users', 'search'));
+    }
+
+    /**
+     * Display the Info Kampus (Info Hub) management page.
+     */
+    public function infoKampus(): View
+    {
+        $posters = InfoHub::latest()->get();
+
+        return view('admin.info-kampus', compact('posters'));
+    }
+
+    /**
+     * Display all posts with status filter.
+     */
+    public function allPosts(Request $request): View
+    {
+        $status = $request->query('status', 'all');
+
+        $query = Post::with(['user', 'skills'])
+            ->withCount(['comments', 'likes', 'interests'])
+            ->latest();
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $posts = $query->paginate(15)->withQueryString();
+
+        $counts = [
+            'all'      => Post::count(),
+            'approved' => Post::where('status', 'approved')->count(),
+            'pending'  => Post::where('status', 'pending')->count(),
+            'closed'   => Post::where('status', 'closed')->count(),
+            'rejected' => Post::where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.posts', compact('posts', 'counts'));
     }
 
     /**
@@ -84,55 +154,4 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Display a paginated list of reports with status filter.
-     */
-    public function reports(Request $request): View
-    {
-        $status = $request->query('status');
-
-        $reports = Report::with(['reporter', 'reportable'])
-            ->when($status, function ($query, $status) {
-                $query->where('status', $status);
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
-
-        return view('admin.reports', compact('reports', 'status'));
-    }
-
-    /**
-     * Handle the status update of a report (handled/rejected).
-     */
-    public function handleReport(Report $report, Request $request): RedirectResponse
-    {
-        $request->validate([
-            'status' => 'required|in:handled,rejected',
-        ]);
-
-        $status = $request->input('status');
-        $report->status = $status;
-        $report->save();
-
-        // If the report was handled and it reported a post, optionally deactivate the post
-        if ($status === 'handled' && $report->reportable_type === Post::class) {
-            $post = $report->reportable;
-            if ($post) {
-                $post->is_active = false;
-                $post->save();
-            }
-        }
-
-        // If the report was handled and it reported a user, optionally deactivate the user
-        if ($status === 'handled' && $report->reportable_type === User::class) {
-            $user = $report->reportable;
-            if ($user && $user->id !== auth()->id()) {
-                $user->is_active = false;
-                $user->save();
-            }
-        }
-
-        return redirect()->back()->with('success', 'Laporan berhasil diproses.');
-    }
 }

@@ -27,9 +27,7 @@
                     :class="type === 'discussion' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'"
                     class="py-2.5 text-sm font-semibold rounded-md transition-all">
                 <span class="flex items-center justify-center gap-1.5">
-                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.583-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.124-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
-                    </svg>
+                    <x-ui.icon name="comment" class="w-4.5 h-4.5" stroke-width="2" />
                     Diskusi
                 </span>
             </button>
@@ -175,9 +173,7 @@
                     <button type="button" @click="projectType = (projectType === 'unpaid' ? '' : 'unpaid')"
                             :class="projectType === 'unpaid' ? 'border-primary bg-primary-light text-primary dark:bg-primary/10 font-bold' : 'border-gray-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'"
                             class="p-3 border rounded-lg text-xs text-center transition-all flex flex-col items-center gap-1.5 select-none cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
-                        </svg>
+                        <x-ui.icon name="like" class="w-5 h-5" stroke-width="1.5" />
                         Sukarela
                     </button>
                     <button type="button" @click="projectType = (projectType === 'portfolio' ? '' : 'portfolio')"
@@ -218,12 +214,24 @@
             <label class="block text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Gambar <span class="text-gray-400 dark:text-slate-500 font-normal normal-case">(opsional, max 5MB)</span></label>
             <div class="relative">
                 <label for="image_upload"
-                       class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-card bg-gray-50 dark:bg-slate-900/60 cursor-pointer hover:border-primary hover:bg-primary-light/10 transition-all"
+                       @dragover.prevent="dragOver = true"
+                       @dragleave.prevent="dragOver = false"
+                       @drop.prevent="
+                           dragOver = false;
+                           const file = $event.dataTransfer.files[0];
+                           if (file && file.type.startsWith('image/')) {
+                               document.getElementById('image_upload').files = $event.dataTransfer.files;
+                               previewImageFromFile(file);
+                           }
+                       "
+                       :class="dragOver ? 'border-primary bg-primary-light/20' : 'border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/60'"
+                       class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-card cursor-pointer hover:border-primary hover:bg-primary-light/10 transition-all"
                        x-show="!imagePreview">
                     <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
                     </svg>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">Klik untuk upload gambar</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400" x-show="!dragOver">Klik atau drag & drop gambar di sini</span>
+                    <span class="text-xs text-primary font-medium" x-show="dragOver" x-cloak>Lepaskan gambar di sini</span>
                 </label>
 
                 {{-- Image Preview --}}
@@ -267,6 +275,7 @@ function createPost() {
         selectedSkills: [],
         allSkills: @json($skills->map(fn($s) => ['id' => $s->id, 'name' => $s->name])),
         imagePreview: null,
+        dragOver: false,
 
         get filteredSkills() {
             if (!this.skillSearch) return [];
@@ -297,6 +306,12 @@ function createPost() {
         previewImage(event) {
             const file = event.target.files[0];
             if (file) {
+                this.imagePreview = URL.createObjectURL(file);
+            }
+        },
+
+        previewImageFromFile(file) {
+            if (file && file.type.startsWith('image/')) {
                 this.imagePreview = URL.createObjectURL(file);
             }
         },

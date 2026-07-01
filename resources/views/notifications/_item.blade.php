@@ -34,10 +34,10 @@
 @endphp
 
 <a href="{{ $url }}"
-   class="flex items-start gap-3 px-4 py-3.5 rounded-card transition-colors group
+   class="flex items-start gap-3 px-4 py-3.5 rounded-card border border-transparent transition-colors group
           {{ $isUnread
-             ? 'bg-primary-light/60 dark:bg-primary/5 border-l-[3px] border-l-primary'
-             : 'bg-white dark:bg-slate-900 border-l-[3px] border-l-transparent hover:bg-gray-50 dark:hover:bg-slate-800/60' }}">
+             ? 'bg-primary-light/60 dark:bg-primary/5'
+             : 'bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800/60' }}">
 
     {{-- Icon / Avatar --}}
     <div class="shrink-0 mt-0.5">

@@ -108,11 +108,6 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id');
     }
 
-    public function reports(): HasMany
-    {
-        return $this->hasMany(Report::class, 'reporter_id');
-    }
-
     // ─── Accessors ───────────────────────────────────────────
 
     /**
@@ -137,5 +132,15 @@ class User extends Authenticatable
         }
 
         return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop';
+    }
+
+    // ─── Password Reset ─────────────────────────────────────
+
+    /**
+     * Send the password reset notification in Indonesian.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
 }

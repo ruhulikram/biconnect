@@ -43,6 +43,7 @@ class SearchController extends Controller
 
         $posts = Post::with('user')
             ->where('is_active', true)
+            ->where('status', 'approved')
             ->where(function ($q) use ($query) {
                 $q->where('title', 'like', "%{$query}%")
                   ->orWhere('body', 'like', "%{$query}%");

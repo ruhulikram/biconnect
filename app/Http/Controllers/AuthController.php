@@ -27,6 +27,14 @@ class AuthController extends Controller
     {
         $email = $request->validated()['email'];
 
+        // Prevent account hijack: block already verified & active users
+        $existingUser = User::where('email', $email)->first();
+        if ($existingUser && $existingUser->is_verified) {
+            return back()->withErrors([
+                'email' => 'Email sudah terdaftar dan aktif. Silakan masuk atau gunakan fitur lupa password.',
+            ])->onlyInput('email');
+        }
+
         // Invalidate previous OTPs for this email
         OtpVerification::where('email', $email)
             ->whereNull('used_at')
@@ -87,19 +95,15 @@ class AuthController extends Controller
         // Mark OTP as used
         $otp->update(['used_at' => now()]);
 
-        // Create user if not exists, mark as verified
+        // Create user if not exists (email verification happens after password creation)
         $user = User::firstOrCreate(
             ['email' => $validated['email']],
             [
                 'name'        => explode('@', $validated['email'])[0],
                 'password'    => bcrypt(str()->random(32)), // temporary password
-                'is_verified' => true,
+                'is_verified' => false,
             ]
         );
-
-        if (! $user->is_verified) {
-            $user->update(['is_verified' => true]);
-        }
 
         // Store user ID in session for password creation
         session(['verified_user_id' => $user->id]);
@@ -134,17 +138,22 @@ class AuthController extends Controller
         // Clear session data
         session()->forget(['otp_email', 'verified_user_id']);
 
-        // Login the user
-        Auth::login($user);
+        // Store email in session for the verification notice page
+        session(['pending_verification_email' => $user->email]);
 
-        // Check if user has completed onboarding
-        if (!$user->onboarding_completed) {
-            return redirect()->route('onboarding.profile')
-                ->with('success', 'Akun berhasil dibuat! Silakan lengkapi profil kamu.');
-        }
+        // Generate verification token & send email
+        $token = \Illuminate\Support\Str::random(64);
 
-        return redirect()->route('feed.index')
-            ->with('success', 'Selamat datang di BiConnect!');
+        \App\Models\EmailVerificationToken::create([
+            'email'      => $user->email,
+            'token'      => $token,
+            'expires_at' => now()->addHours(24),
+        ]);
+
+        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\EmailVerificationMail($token));
+
+        return redirect()->route('verification.notice')
+            ->with('success', 'Akun berhasil dibuat! Silakan verifikasi email kamu.');
     }
 
     // ─── Login ───────────────────────────────────────────────
@@ -162,6 +171,18 @@ class AuthController extends Controller
             return back()->withErrors([
                 'email' => 'Email atau password salah.',
             ])->onlyInput('email');
+        }
+
+        if (! Auth::user()->is_verified) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Store email for resend option & redirect to verification notice page
+            session(['pending_verification_email' => $credentials['email']]);
+
+            return redirect()->route('verification.notice')
+                ->with('warning', 'Akun kamu belum diverifikasi. Silakan cek email untuk tautan verifikasi.');
         }
 
         if (! Auth::user()->is_active) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Campus;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -51,7 +52,9 @@ class ProfileController extends Controller
         // Build a map of existing social links by platform
         $socialLinks = $user->socialLinks->pluck('url', 'platform')->toArray();
 
-        return view('profile.edit', compact('user', 'allSkills', 'selectedSkillIds', 'socialLinks'));
+        $campusAreas = Campus::orderBy('name')->get()->groupBy('region');
+
+        return view('profile.edit', compact('user', 'allSkills', 'selectedSkillIds', 'socialLinks', 'campusAreas'));
     }
 
     /**

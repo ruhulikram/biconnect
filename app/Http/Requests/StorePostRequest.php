@@ -20,7 +20,7 @@ class StorePostRequest extends FormRequest
             'skills'       => ['nullable', 'array'],
             'skills.*'     => ['exists:skills,id'],
             'deadline'     => ['nullable', 'date', 'after:today'],
-            'campus_area'  => ['nullable', 'string', 'max:100'],
+            'campus_area'  => ['nullable', 'exists:campuses,code'],
             'project_type' => ['nullable', 'in:paid,unpaid,portfolio'],
             'image'        => ['nullable', 'image', 'max:5120'],
         ];

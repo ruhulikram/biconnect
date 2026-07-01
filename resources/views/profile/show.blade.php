@@ -27,14 +27,6 @@
                         x-transition:leave-end="opacity-0 scale-95"
                         class="absolute right-0 mt-1 w-44 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-md shadow-md py-1 z-10 text-sm"
                         style="display: none;">
-                        <a href="{{ route('report.create', ['type' => 'user', 'id' => $user->id]) }}"
-                            class="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 flex items-center gap-2.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
-                            </svg>
-                            Laporkan
-                        </a>
                         <button
                             class="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-700 text-red-500 dark:text-red-400 flex items-center gap-2.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -87,11 +79,7 @@
                 @if($user->campus_area)
                     <span class="text-gray-300 dark:text-gray-600">&middot;</span>
                     <span class="inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                        </svg>
+                        <x-ui.icon name="location" class="w-3.5 h-3.5" stroke-width="1.5" />
                         {{ $user->campus_area }}
                     </span>
                 @endif
@@ -120,10 +108,7 @@
             <div class="mb-6">
                 @if($isOwner)
                     <x-ui.button variant="outlined" full :href="route('profile.edit')">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg>
+                        <x-ui.icon name="edit" class="w-4 h-4" stroke-width="2" />
                         Edit Profil
                     </x-ui.button>
                 @else

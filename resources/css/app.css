@@ -122,3 +122,11 @@
     overflow: hidden;
   }
 }
+
+/* ============================================================
+   Alpine.js — Prevent FOUC (Flash of Unstyled Content)
+   x-cloak hides elements until Alpine initializes.
+   ============================================================ */
+[x-cloak] {
+  display: none !important;
+}

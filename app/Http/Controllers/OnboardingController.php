@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campus;
 use App\Models\Skill;
 use Illuminate\Http\Request;
 
@@ -17,8 +18,11 @@ class OnboardingController extends Controller
             return redirect()->route('feed.index');
         }
 
+        $campusAreas = Campus::orderBy('name')->get()->groupBy('region');
+
         return view('onboarding.profile', [
-            'user' => auth()->user()
+            'user' => auth()->user(),
+            'campusAreas' => $campusAreas
         ]);
     }
 
@@ -30,7 +34,7 @@ class OnboardingController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'program' => 'required|string|max:255',
-            'campus_area' => 'required|string|max:255',
+            'campus_area' => 'required|exists:campuses,code',
         ]);
 
         $user = auth()->user();

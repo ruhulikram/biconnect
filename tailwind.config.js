@@ -55,4 +55,16 @@ export default {
     },
   },
   plugins: [],
+  safelist: [
+    'opacity-0',
+    'opacity-100',
+    'translate-x-0',
+    'translate-x-8',
+    '-translate-x-8',
+    'translate-y-0',
+    'translate-y-2',
+    '-translate-y-2',
+    'scale-95',
+    'scale-100',
+  ],
 }
