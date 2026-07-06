@@ -28,6 +28,7 @@ class User extends Authenticatable
         'semester',
         'campus_area',
         'bio',
+        'whatsapp',
         'avatar',
         'cover',
         'dark_mode',

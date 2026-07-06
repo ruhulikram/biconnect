@@ -82,6 +82,8 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
     // Post Interactions
     Route::post('/post/{post}/tertarik', [PostController::class, 'storeInterest'])
         ->name('interest.store');
+    Route::post('/post/{post}/tertarik/{interest}/pilih', [PostController::class, 'selectInterest'])
+        ->name('interest.select');
     Route::post('/post/{post}/like', [LikeController::class, 'toggle'])
         ->name('post.like');
     Route::post('/post/{post}/tutup', [PostController::class, 'close'])

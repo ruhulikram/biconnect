@@ -2,7 +2,7 @@
 @section('title', 'Project Pending — Admin')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="rejectModal()">
 
     {{-- Page Header --}}
     <div class="flex items-center justify-between">
@@ -89,15 +89,12 @@
                                 </td>
                                 <td class="px-4 py-3.5 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        {{-- Reject --}}
-                                        <form action="{{ route('admin.reject-project', $project) }}" method="POST"
-                                              onsubmit="return confirm('Yakin ingin menolak project ini?')">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="px-3 py-1.5 text-xs font-medium text-danger hover:bg-danger/10 rounded-input transition-colors">
-                                                Tolak
-                                            </button>
-                                        </form>
+                                        {{-- Reject — opens modal --}}
+                                        <button type="button"
+                                                @click="openReject({{ $project->id }}, '{{ addslashes($project->title) }}')"
+                                                class="px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-input transition-colors">
+                                            Tolak
+                                        </button>
                                         {{-- Approve --}}
                                         <form action="{{ route('admin.approve-project', $project) }}" method="POST">
                                             @csrf
@@ -123,5 +120,105 @@
         </div>
     @endif
 
+    {{-- ═══════════════════════════════════════════════════════ --}}
+    {{-- Rejection Reason Modal                                  --}}
+    {{-- ═══════════════════════════════════════════════════════ --}}
+    <div x-show="open"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+         style="display: none;"
+         @click.self="open = false">
+
+        <div x-show="open"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="bg-white dark:bg-slate-900 rounded-card shadow-xl w-full max-w-md border border-gray-200 dark:border-slate-700">
+
+            {{-- Modal Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">Tolak Project</h3>
+                        <p class="text-xs text-gray-400 dark:text-gray-500" x-text="'\"' + projectTitle + '\"'"></p>
+                    </div>
+                </div>
+                <button @click="open = false" class="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Modal Body —Form --}}
+            <form :action="rejectUrl" method="POST" class="p-5 space-y-4">
+                @csrf
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Alasan Penolakan
+                        <span class="text-gray-400 font-normal">(opsional)</span>
+                    </label>
+                    <textarea name="reason"
+                              x-model="reason"
+                              rows="3"
+                              placeholder="Tuliskan alasan penolakan agar pengguna dapat memperbaiki project-nya..."
+                              class="w-full rounded-input border border-border dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:shadow-focus resize-none transition-shadow"></textarea>
+                    <p class="text-xs text-gray-400">Alasan ini akan dikirimkan sebagai notifikasi kepada pemilik project.</p>
+                </div>
+
+                <div class="flex items-center gap-3 pt-1">
+                    <button type="button"
+                            @click="open = false"
+                            class="flex-1 h-10 text-sm font-medium text-gray-600 dark:text-gray-400 border border-border dark:border-slate-700 rounded-input hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="flex-1 h-10 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-input transition-colors flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Tolak Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function rejectModal() {
+    return {
+        open: false,
+        projectId: null,
+        projectTitle: '',
+        reason: '',
+        rejectUrl: '',
+
+        openReject(id, title) {
+            this.projectId = id;
+            this.projectTitle = title;
+            this.reason = '';
+            this.rejectUrl = `/admin/projects/${id}/reject`;
+            this.open = true;
+        }
+    };
+}
+</script>
+@endpush
+

@@ -58,17 +58,29 @@ class AdminController extends Controller
 
         $post->update(['status' => 'approved', 'is_active' => true]);
 
+        // Send notification to the user who posted the project
+        if ($post->user) {
+            $post->user->notify(new \App\Notifications\ProjectApproved($post));
+        }
+
         return back()->with('success', 'Project "' . $post->title . '" berhasil disetujui dan dipublikasikan.');
     }
 
     /**
      * Reject a pending project.
      */
-    public function rejectProject(Post $post): RedirectResponse
+    public function rejectProject(Request $request, Post $post): RedirectResponse
     {
         abort_if($post->type !== 'project', 404);
 
+        $reason = $request->input('reason');
+
         $post->update(['status' => 'rejected', 'is_active' => false]);
+
+        // Send notification to the post owner with the rejection reason
+        if ($post->user) {
+            $post->user->notify(new \App\Notifications\ProjectRejected($post, $reason ?: null));
+        }
 
         return back()->with('success', 'Project "' . $post->title . '" ditolak.');
     }

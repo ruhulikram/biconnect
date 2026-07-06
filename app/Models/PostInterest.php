@@ -12,6 +12,7 @@ class PostInterest extends Model
     protected $fillable = [
         'post_id',
         'user_id',
+        'status',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class PostInterest extends Model
     {
         static::creating(function (PostInterest $interest) {
             $interest->created_at = $interest->created_at ?? now();
+            $interest->status = $interest->status ?? 'pending';
         });
     }
 

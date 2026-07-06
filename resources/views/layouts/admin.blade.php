@@ -49,9 +49,9 @@
                 <a href="{{ route('admin.users') }}"
                     class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-150
                           {{ request()->routeIs('admin.users') ? 'bg-gray-100 text-gray-950 dark:bg-slate-800 dark:text-white font-semibold' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-slate-100' }}">
-                    <svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0110.089 21m-5.02-2.13A9.232 9.232 0 010 18c0-1.293.761-2.41 1.876-2.913a4.125 4.125 0 017.577 0.095c.23.076.452.174.663.295m-5.122-.08A9.03 9.03 0 0110 15c1.478 0 2.868.355 4.086 1.002M7.5 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zm14 0a3.001 3.001 0 11-6 0 3.001 3.001 0 016 0zm-7.375 7.375a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                    <svg class="w-5 h-5 text-current" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.5 21.0001H6.5C5.11929 21.0001 4 19.8808 4 18.5001C4 14.4194 10 14.5001 12 14.5001C14 14.5001 20 14.4194 20 18.5001C20 19.8808 18.8807 21.0001 17.5 21.0001Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     Manajemen Pengguna
                 </a>

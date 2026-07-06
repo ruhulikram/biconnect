@@ -64,7 +64,7 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        $data = $request->only(['name', 'bio', 'program', 'semester', 'campus_area']);
+        $data = $request->only(['name', 'bio', 'program', 'semester', 'campus_area', 'whatsapp']);
 
         // Handle avatar upload
         if ($request->hasFile('avatar')) {

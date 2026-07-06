@@ -25,7 +25,7 @@ class InfoHubController extends Controller
             'is_active'    => true,
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Poster berhasil diupload.');
+        return back()->with('success', 'Poster berhasil diupload.');
     }
 
     public function update(Request $request, InfoHub $infoHub)
@@ -49,7 +49,7 @@ class InfoHubController extends Controller
 
         $infoHub->update($data);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Poster berhasil diperbarui.');
+        return back()->with('success', 'Poster berhasil diperbarui.');
     }
 
     public function destroy(InfoHub $infoHub)
@@ -59,7 +59,7 @@ class InfoHubController extends Controller
         }
         $infoHub->delete();
 
-        return redirect()->route('admin.dashboard')->with('success', 'Poster berhasil dihapus.');
+        return back()->with('success', 'Poster berhasil dihapus.');
     }
 
     public function toggleActive(InfoHub $infoHub)

@@ -3,7 +3,7 @@
 @section('page_title', 'Informasi Kampus')
 
 @section('content')
-<div class="space-y-6" x-data="{ showForm: false, editing: null }">
+<div class="space-y-6" x-data="infoKampusForm()">
 
     {{-- Page Header --}}
     <div class="flex items-center justify-between">
@@ -45,15 +45,41 @@
             <div>
                 <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Gambar Poster</label>
                 <div class="flex items-center gap-4">
-                    <label class="flex-1 flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-card bg-gray-50 dark:bg-gray-800 cursor-pointer hover:border-primary hover:bg-primary-light/10 transition-all">
-                        <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">Klik untuk pilih gambar (rasio 3:4, max 5MB)</span>
-                        <input type="file" name="poster_image" accept="image/*" required class="hidden">
-                    </label>
+                    <div class="flex-1">
+                        {{-- Image Preview --}}
+                        <template x-if="imagePreview">
+                            <div class="relative w-full h-48 rounded-card overflow-hidden border border-border dark:border-gray-800 bg-gray-50 dark:bg-gray-850">
+                                <img :src="imagePreview" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                                    <button type="button" @click="$refs.fileInput.click()" class="px-3 py-1.5 bg-white text-gray-900 text-xs font-semibold rounded-input hover:bg-gray-100 transition-colors">
+                                        Ganti Gambar
+                                    </button>
+                                    <button type="button" @click="removeImage()" class="px-3 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-input hover:bg-red-700 transition-colors">
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- Drag & Drop Zone --}}
+                        <template x-if="!imagePreview">
+                            <label 
+                                @dragover.prevent="isDragOver = true"
+                                @dragleave.prevent="isDragOver = false"
+                                @drop.prevent="isDragOver = false; handleDrop($event)"
+                                :class="isDragOver ? 'border-primary bg-primary-light/10' : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'"
+                                class="flex flex-col items-center justify-center h-28 border-2 border-dashed rounded-card cursor-pointer hover:border-primary hover:bg-primary-light/10 transition-all">
+                                <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Tarik & letakkan gambar di sini, atau klik untuk memilih</span>
+                                <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Rasio 3:4 (Disarankan), maks 5MB</span>
+                                <input type="file" name="poster_image" x-ref="fileInput" @change="handleFileSelect($event)" accept="image/*" required class="hidden">
+                            </label>
+                        </template>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-2">
-                <button type="button" @click="showForm = false"
+                <button type="button" @click="showForm = false; removeImage()"
                         class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-input transition-colors">
                     Batal
                 </button>
@@ -155,4 +181,47 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+function infoKampusForm() {
+    return {
+        showForm: false,
+        imagePreview: null,
+        isDragOver: false,
+        
+        handleFileSelect(event) {
+            const file = event.target.files[0];
+            this.previewFile(file);
+        },
+        
+        handleDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                const input = this.$refs.fileInput;
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                input.files = dataTransfer.files;
+                this.previewFile(file);
+            }
+        },
+        
+        previewFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                this.imagePreview = URL.createObjectURL(file);
+            } else {
+                this.imagePreview = null;
+            }
+        },
+        
+        removeImage() {
+            this.imagePreview = null;
+            if (this.$refs.fileInput) {
+                this.$refs.fileInput.value = '';
+            }
+        }
+    };
+}
+</script>
+@endpush
 @endsection

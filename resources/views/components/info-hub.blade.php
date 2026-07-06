@@ -14,13 +14,21 @@
         @forelse($posters as $poster)
             <a href="{{ $poster->poster_link ?: '#' }}"
                @if($poster->poster_link) target="_blank" rel="noopener noreferrer" @endif
-               class="block rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow group">
+               title="{{ $poster->title }}"
+               class="block rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow group bg-white dark:bg-gray-900">
                 <div class="aspect-[3/4] bg-gray-100 dark:bg-gray-800 overflow-hidden">
                     <img src="{{ asset('storage/' . $poster->poster_image) }}"
-                         alt="Informasi Kampus"
+                         alt="{{ $poster->title ?: 'Informasi Kampus' }}"
                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                          loading="lazy">
                 </div>
+                @if($poster->title)
+                    <div class="p-2.5 bg-white dark:bg-gray-800 border-t border-gray-50 dark:border-gray-700/50">
+                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 line-clamp-1 group-hover:text-primary transition-colors">
+                            {{ $poster->title }}
+                        </p>
+                    </div>
+                @endif
             </a>
         @empty
             <div class="text-center py-8">

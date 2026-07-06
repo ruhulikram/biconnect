@@ -196,8 +196,21 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        if (! Auth::user()->onboarding_completed) {
+        // Check if profile is incomplete → send one-time notification
+        $user = Auth::user();
+        if (!$user->onboarding_completed) {
             return redirect()->route('onboarding.profile');
+        }
+
+        // Send profile completion reminder if bio or skills are missing (only once)
+        $profileIncomplete = empty($user->bio) || $user->skills()->doesntExist();
+        if ($profileIncomplete) {
+            $alreadySent = $user->notifications()
+                ->where('type', 'App\Notifications\CompleteProfile')
+                ->exists();
+            if (!$alreadySent) {
+                $user->notify(new \App\Notifications\CompleteProfile());
+            }
         }
 
         return redirect()->intended(route('feed.index'))

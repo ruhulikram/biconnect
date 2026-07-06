@@ -12,9 +12,9 @@
 
                     {{-- Badge --}}
                     <!-- <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-pill bg-primary-light text-primary text-sm font-semibold mb-6 shadow-sm border border-primary/10 dark:bg-primary/10 dark:text-primary-light dark:border-primary/20">
-                            <span>✦</span> Khusus Mahasiswa BSI Terverifikasi
-                        </div> -->
+                                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-pill bg-primary-light text-primary text-sm font-semibold mb-6 shadow-sm border border-primary/10 dark:bg-primary/10 dark:text-primary-light dark:border-primary/20">
+                                    <span>✦</span> Khusus Mahasiswa BSI Terverifikasi
+                                </div> -->
 
                     {{-- Headline --}}
                     <h1
@@ -40,41 +40,41 @@
                         </x-ui.button>
                     </div>
 
-                    {{-- Caption --}}
-                    <div class="flex items-center justify-center lg:justify-start gap-4 text-xs font-medium text-gray-400">
-                        <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
-                                stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg> Gratis</span>
-                        <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
-                                stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg> Khusus @bsi.ac.id</span>
-                        <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
-                                stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg> Terverifikasi</span>
-                    </div>
+                    <!-- {{-- Caption --}}
+                            <div class="flex items-center justify-center lg:justify-start gap-4 text-xs font-medium text-gray-400">
+                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
+                                        stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                    </svg> Gratis</span>
+                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
+                                        stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                    </svg> Khusus @bsi.ac.id</span>
+                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
+                                        stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                    </svg> Terverifikasi</span>
+                            </div> -->
                 </div>
 
                 {{-- Right side: Auto-sliding banner --}}
                 <div class="flex-1 w-full max-w-lg" x-data="{
-                                         active: 0,
-                                         total: 3,
-                                         timer: null,
-                                         init() {
-                                             this.timer = setInterval(() => {
-                                                 this.active = (this.active + 1) % this.total;
-                                             }, 4500);
-                                         },
-                                         goTo(idx) {
-                                             clearInterval(this.timer);
-                                             this.active = idx;
-                                             this.timer = setInterval(() => {
-                                                 this.active = (this.active + 1) % this.total;
-                                             }, 4500);
-                                         }
-                                     }">
+                                                 active: 0,
+                                                 total: 3,
+                                                 timer: null,
+                                                 init() {
+                                                     this.timer = setInterval(() => {
+                                                         this.active = (this.active + 1) % this.total;
+                                                     }, 4500);
+                                                 },
+                                                 goTo(idx) {
+                                                     clearInterval(this.timer);
+                                                     this.active = idx;
+                                                     this.timer = setInterval(() => {
+                                                         this.active = (this.active + 1) % this.total;
+                                                     }, 4500);
+                                                 }
+                                             }">
                     <div class="relative rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] bg-indigo-200">
 
                         {{-- Slide 1 --}}
@@ -98,7 +98,7 @@
                             x-transition:leave-start="opacity-100 translate-x-0"
                             x-transition:leave-end="opacity-0 -translate-x-8"
                             class="absolute inset-0 bg-gradient-to-br from-orange-200 to-amber-200 flex items-center justify-center">
-                            <img src="{{ asset('images/banner.webp') }}" alt="Bangun Portofolio"
+                            <img src="{{ asset('images/banner-2.webp') }}" alt="Bangun Portofolio"
                                 class="absolute inset-0 w-full h-full object-cover" onerror="this.remove()">
                         </div>
 
@@ -111,7 +111,7 @@
                             x-transition:leave-start="opacity-100 translate-x-0"
                             x-transition:leave-end="opacity-0 -translate-x-8"
                             class="absolute inset-0 bg-gradient-to-br from-emerald-200 to-teal-200 flex items-center justify-center">
-                            <img src="{{ asset('images/banner.webp') }}" alt="Diskusi & Bertukar Ide"
+                            <img src="{{ asset('images/banner-3.webp') }}" alt="Diskusi & Bertukar Ide"
                                 class="absolute inset-0 w-full h-full object-cover" onerror="this.remove()">
                         </div>
 

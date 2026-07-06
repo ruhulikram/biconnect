@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostInterest;
 use App\Models\Skill;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -80,7 +81,7 @@ class PostController extends Controller
         $post->load([
             'user',
             'skills',
-            'interests.user',
+            'interests.user.socialLinks',
             'comments' => function ($q) {
                 $q->topLevel()
                   ->with(['user', 'replies.user'])
@@ -166,6 +167,54 @@ class PostController extends Controller
         $post->user->notify(new \App\Notifications\NewInterest($post, auth()->user()));
 
         return back()->with('success', 'Ketertarikan berhasil dikirim! Pemilik project akan menghubungi Anda. 🤝');
+    }
+
+    /**
+     * Select an interested user as a candidate for the project.
+     */
+    public function selectInterest(Post $post, PostInterest $interest): JsonResponse
+    {
+        // Only post owner can select candidates
+        if ($post->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($post->type !== 'project') {
+            return response()->json(['error' => 'Invalid post type'], 422);
+        }
+
+        // Mark as selected
+        $interest->update(['status' => 'selected']);
+
+        // Send notification to the selected user
+        $interest->user->notify(new \App\Notifications\InterestSelected($post));
+
+        // Return contact info of the selected user
+        $user = $interest->user;
+        $whatsappUrl = null;
+        if ($user->whatsapp) {
+            $wa = preg_replace('/[^0-9]/', '', $user->whatsapp);
+            if (str_starts_with($wa, '0')) {
+                $wa = '62' . substr($wa, 1);
+            }
+            $whatsappUrl = 'https://wa.me/' . $wa;
+        }
+
+        return response()->json([
+            'success'       => true,
+            'user'          => [
+                'name'        => $user->name,
+                'avatar_url'  => $user->avatar_url,
+                'email'       => $user->email,
+                'whatsapp'    => $user->whatsapp,
+                'whatsapp_url'=> $whatsappUrl,
+                'social_links'=> $user->socialLinks->map(fn($l) => [
+                    'platform' => $l->platform,
+                    'url'      => $l->url,
+                ])->toArray(),
+                'profile_url' => route('profile.show.user', $user),
+            ],
+        ]);
     }
 
     /**
