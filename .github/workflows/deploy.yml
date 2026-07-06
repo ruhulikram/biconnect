@@ -20,7 +20,7 @@ jobs:
 
     - name: Install JS dependencies & Build Assets
       run: |
-        npm ci
+        npm install
         npm run build
 
     - name: 📂 Sync Laravel Core Files to /biconnect
