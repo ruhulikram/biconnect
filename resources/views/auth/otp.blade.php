@@ -105,7 +105,7 @@ function otpForm() {
         init() {
             // Focus first input
             this.$nextTick(() => {
-                const inputs = this.$refs.otpInput;
+                const inputs = this.$el.querySelectorAll('input[type="text"]');
                 if (inputs && inputs[0]) inputs[0].focus();
             });
 
@@ -130,7 +130,7 @@ function otpForm() {
 
             // Auto-advance to next input
             if (index < 5) {
-                const inputs = this.$refs.otpInput;
+                const inputs = event.target.parentElement.querySelectorAll('input[type="text"]');
                 if (inputs[index + 1]) inputs[index + 1].focus();
             }
 
@@ -142,7 +142,7 @@ function otpForm() {
 
         handleBackspace(index, event) {
             if (this.digits[index] === '' && index > 0) {
-                const inputs = this.$refs.otpInput;
+                const inputs = event.target.parentElement.querySelectorAll('input[type="text"]');
                 if (inputs[index - 1]) {
                     inputs[index - 1].focus();
                     this.digits[index - 1] = '';
@@ -159,7 +159,7 @@ function otpForm() {
             this.hasError = false;
 
             // Focus last filled input
-            const inputs = this.$refs.otpInput;
+            const inputs = event.target.parentElement.querySelectorAll('input[type="text"]');
             const focusIndex = Math.min(pasted.length, 5);
             if (inputs[focusIndex]) inputs[focusIndex].focus();
 

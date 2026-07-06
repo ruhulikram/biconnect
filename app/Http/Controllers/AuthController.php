@@ -133,27 +133,18 @@ class AuthController extends Controller
         $user = User::findOrFail($userId);
         $user->update([
             'password' => bcrypt($request->validated()['password']),
+            'is_verified' => true,
+            'email_verified_at' => now(),
         ]);
 
         // Clear session data
         session()->forget(['otp_email', 'verified_user_id']);
 
-        // Store email in session for the verification notice page
-        session(['pending_verification_email' => $user->email]);
+        // Log the user in immediately
+        Auth::login($user);
 
-        // Generate verification token & send email
-        $token = \Illuminate\Support\Str::random(64);
-
-        \App\Models\EmailVerificationToken::create([
-            'email'      => $user->email,
-            'token'      => $token,
-            'expires_at' => now()->addHours(24),
-        ]);
-
-        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\EmailVerificationMail($token));
-
-        return redirect()->route('verification.notice')
-            ->with('success', 'Akun berhasil dibuat! Silakan verifikasi email kamu.');
+        return redirect()->route('feed.index')
+            ->with('success', 'Akun berhasil diaktifkan! Selamat datang di BiConnect.');
     }
 
     // ─── Login ───────────────────────────────────────────────
