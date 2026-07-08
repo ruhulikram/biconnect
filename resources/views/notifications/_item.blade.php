@@ -30,6 +30,11 @@
             'bg'   => 'bg-amber-100 dark:bg-amber-950/40',
             'text' => 'text-amber-600 dark:text-amber-400',
         ],
+        'InterestDeselected' => [
+            'icon' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            'bg'   => 'bg-red-100 dark:bg-red-950/40',
+            'text' => 'text-red-500 dark:text-red-400',
+        ],
         'ProjectRejected' => [
             'icon' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
             'bg'   => 'bg-red-100 dark:bg-red-950/40',
@@ -48,7 +53,7 @@
         'text' => 'text-gray-500 dark:text-gray-400',
     ];
 
-    $url = $data['url'] ?? '#';
+    $url = $data['url'] ?? (isset($data['post_id']) ? route('post.show', $data['post_id']) : '#');
     $avatarUrl = $data['avatar_url'] ?? null;
     $actorName = $data['actor_name'] ?? null;
 @endphp

@@ -216,15 +216,31 @@
                                     </div>
                                     <div class="shrink-0">
                                         @if($interest->status === 'selected')
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 text-xs font-semibold border border-green-200 dark:border-green-900/40">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Terpilih
-                                            </span>
+                                            <div class="flex items-center gap-2">
+                                                <!-- Clickable to show contact info again -->
+                                                <button type="button"
+                                                        @click="viewContact('{{ route('interest.select', [$post, $interest]) }}')"
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 text-xs font-semibold border border-green-200 dark:border-green-900/40 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                                                        title="Lihat Kontak">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Terpilih
+                                                </button>
+                                                <!-- Deselect button -->
+                                                <button type="button"
+                                                        @click="triggerDeselect('{{ addslashes($interest->user->name) }}', '{{ route('interest.deselect', [$post, $interest]) }}')"
+                                                        :disabled="loading"
+                                                        class="p-1.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full border border-red-200 dark:border-red-900/40 transition-colors"
+                                                        title="Batalkan Pilihan">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         @else
                                             <button type="button"
-                                                    @click="selectCandidate({{ $interest->id }}, '{{ route('interest.select', [$post, $interest]) }}')"
+                                                    @click="triggerSelect('{{ addslashes($interest->user->name) }}', '{{ route('interest.select', [$post, $interest]) }}')"
                                                     :disabled="loading"
                                                     class="px-3 py-1.5 text-xs font-semibold text-primary border border-primary/30 rounded-full hover:bg-primary-light dark:hover:bg-primary/10 transition-colors disabled:opacity-50">
                                                 Pilih
@@ -266,7 +282,7 @@
                          x-transition:leave-end="opacity-0"
                          class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
                          style="display:none;"
-                         @click.self="modalOpen = false">
+                         @click.self="closeModal()">
 
                         <div x-show="modalOpen"
                              x-transition:enter="transition ease-out duration-300"
@@ -287,7 +303,7 @@
                                     </div>
                                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Kandidat Terpilih!</h3>
                                 </div>
-                                <button @click="modalOpen = false" class="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 transition-colors">
+                                <button @click="closeModal()" class="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
@@ -350,9 +366,55 @@
                                     </template>
                                 </div>
 
-                                <button @click="modalOpen = false"
+                                <button @click="closeModal()"
                                         class="w-full h-10 text-sm font-medium text-gray-600 dark:text-gray-400 border border-border dark:border-gray-700 rounded-input hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mt-2">
                                     Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ── Confirmation Modal (Select Candidate) ── --}}
+                    <div x-show="confirmSelectOpen"
+                         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                         style="display:none;"
+                         @click.self="confirmSelectOpen = false">
+                        <div class="bg-white dark:bg-gray-900 rounded-card shadow-2xl w-full max-w-sm border border-border dark:border-gray-700 p-5 space-y-4">
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Konfirmasi Pemilihan</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Apakah Anda yakin ingin memilih <strong x-text="pendingSelectName"></strong> sebagai kandidat terpilih untuk project ini? Pemilik project dan kandidat akan saling mendapatkan notifikasi.
+                            </p>
+                            <div class="flex gap-2">
+                                <button type="button" @click="confirmSelectOpen = false"
+                                        class="flex-1 h-9 text-xs font-semibold text-gray-600 dark:text-gray-400 border border-border dark:border-gray-700 rounded-input hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    Batal
+                                </button>
+                                <button type="button" @click="confirmSelect()"
+                                        class="flex-1 h-9 text-xs font-semibold bg-primary text-white rounded-input hover:bg-primary-dark transition-colors">
+                                    Ya, Pilih
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ── Confirmation Modal (Deselect Candidate) ── --}}
+                    <div x-show="confirmDeselectOpen"
+                         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                         style="display:none;"
+                         @click.self="confirmDeselectOpen = false">
+                        <div class="bg-white dark:bg-gray-900 rounded-card shadow-2xl w-full max-w-sm border border-border dark:border-gray-700 p-5 space-y-4">
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Batalkan Pemilihan</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Apakah Anda yakin ingin membatalkan pilihan untuk <strong x-text="pendingDeselectName"></strong>? Status kandidat akan dikembalikan menjadi pending.
+                            </p>
+                            <div class="flex gap-2">
+                                <button type="button" @click="confirmDeselectOpen = false"
+                                        class="flex-1 h-9 text-xs font-semibold text-gray-600 dark:text-gray-400 border border-border dark:border-gray-700 rounded-input hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    Batal
+                                </button>
+                                <button type="button" @click="confirmDeselect()"
+                                        class="flex-1 h-9 text-xs font-semibold bg-red-600 text-white rounded-input hover:bg-red-700 transition-colors">
+                                    Ya, Batalkan
                                 </button>
                             </div>
                         </div>
@@ -511,11 +573,60 @@
 <script>
 function candidateModal() {
     return {
+        // Contact Modal
         modalOpen: false,
-        loading: false,
         selectedUser: {},
 
-        async selectCandidate(interestId, url) {
+        // Confirmation Modal (Select)
+        confirmSelectOpen: false,
+        pendingSelectUrl: '',
+        pendingSelectName: '',
+
+        // Confirmation Modal (Deselect)
+        confirmDeselectOpen: false,
+        pendingDeselectUrl: '',
+        pendingDeselectName: '',
+
+        loading: false,
+
+        // Step 1: Trigger select confirmation
+        triggerSelect(name, url) {
+            this.pendingSelectName = name;
+            this.pendingSelectUrl = url;
+            this.confirmSelectOpen = true;
+        },
+
+        // Step 2: Confirm selection (calls backend)
+        async confirmSelect() {
+            if (this.loading) return;
+            this.loading = true;
+            this.confirmSelectOpen = false;
+
+            try {
+                const response = await fetch(this.pendingSelectUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    this.selectedUser = data.user;
+                    this.modalOpen = true;
+                }
+            } catch (e) {
+                console.error('Error selecting candidate:', e);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        // Direct fetch to view contact info without confirming
+        async viewContact(url) {
             if (this.loading) return;
             this.loading = true;
 
@@ -534,14 +645,52 @@ function candidateModal() {
                 if (data.success) {
                     this.selectedUser = data.user;
                     this.modalOpen = true;
-                    // Reload page to update badge status
-                    setTimeout(() => location.reload(), 100);
                 }
             } catch (e) {
-                console.error('Error selecting candidate:', e);
+                console.error('Error fetching contact info:', e);
             } finally {
                 this.loading = false;
             }
+        },
+
+        // Step 3: Trigger deselect confirmation
+        triggerDeselect(name, url) {
+            this.pendingDeselectName = name;
+            this.pendingDeselectUrl = url;
+            this.confirmDeselectOpen = true;
+        },
+
+        // Step 4: Confirm deselection (calls backend)
+        async confirmDeselect() {
+            if (this.loading) return;
+            this.loading = true;
+            this.confirmDeselectOpen = false;
+
+            try {
+                const response = await fetch(this.pendingDeselectUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    location.reload();
+                }
+            } catch (e) {
+                console.error('Error deselecting candidate:', e);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        closeModal() {
+            this.modalOpen = false;
+            location.reload();
         }
     };
 }

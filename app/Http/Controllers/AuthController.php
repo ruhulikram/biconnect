@@ -194,15 +194,7 @@ class AuthController extends Controller
         }
 
         // Send profile completion reminder if bio or skills are missing (only once)
-        $profileIncomplete = empty($user->bio) || $user->skills()->doesntExist();
-        if ($profileIncomplete) {
-            $alreadySent = $user->notifications()
-                ->where('type', 'App\Notifications\CompleteProfile')
-                ->exists();
-            if (!$alreadySent) {
-                $user->notify(new \App\Notifications\CompleteProfile());
-            }
-        }
+        $user->sendProfileCompletionReminder();
 
         return redirect()->intended(route('feed.index'))
             ->with('success', 'Selamat datang kembali!');

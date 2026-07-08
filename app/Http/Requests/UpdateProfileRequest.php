@@ -27,6 +27,7 @@ class UpdateProfileRequest extends FormRequest
             'program'     => 'nullable|string|max:100',
             'semester'    => 'nullable|integer|min:1|max:14',
             'campus_area' => 'nullable|exists:campuses,code',
+            'whatsapp'    => 'nullable|string|max:20',
             'avatar'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'cover'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'skills'      => 'nullable|array',

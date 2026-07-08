@@ -78,6 +78,9 @@ class OnboardingController extends Controller
         $user->skills()->sync($request->skills);
         $user->update(['onboarding_completed' => true]);
 
+        // Check if profile is incomplete -> send one-time notification
+        $user->sendProfileCompletionReminder();
+
         return redirect()->route('feed.index')->with('success', 'Profil berhasil dilengkapi! Selamat datang di BiConnect.');
     }
 
@@ -88,6 +91,9 @@ class OnboardingController extends Controller
     {
         $user = auth()->user();
         $user->update(['onboarding_completed' => true]);
+
+        // Check if profile is incomplete -> send one-time notification
+        $user->sendProfileCompletionReminder();
 
         return redirect()->route('feed.index')->with('success', 'Selamat datang di BiConnect!');
     }

@@ -12,7 +12,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         if (file_exists(base_path('../public_html'))) {
-            $this->app->usePublicPath(base_path('../public_html'));
+            $app = $this->app;
+            if ($app instanceof \Illuminate\Foundation\Application) {
+                $app->usePublicPath(base_path('../public_html'));
+            }
         }
     }
 

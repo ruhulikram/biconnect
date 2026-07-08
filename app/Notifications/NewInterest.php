@@ -29,6 +29,7 @@ class NewInterest extends Notification
             'user_id'     => $this->interestedUser->id,
             'user_name'   => $this->interestedUser->name,
             'user_avatar' => $this->interestedUser->avatar_url,
+            'url'         => route('post.show', $this->post),
             'message'     => "{$this->interestedUser->name} tertarik dengan project kamu \"{$this->post->title}\"",
         ];
     }

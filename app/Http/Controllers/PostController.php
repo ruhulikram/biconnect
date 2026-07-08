@@ -218,6 +218,32 @@ class PostController extends Controller
     }
 
     /**
+     * Cancel/deselect a previously selected candidate.
+     */
+    public function deselectInterest(Post $post, PostInterest $interest): JsonResponse
+    {
+        // Only post owner can deselect candidates
+        if ($post->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($post->type !== 'project') {
+            return response()->json(['error' => 'Invalid post type'], 422);
+        }
+
+        // Revert status to pending
+        $interest->update(['status' => 'pending']);
+
+        // Notify the candidate
+        $interest->user->notify(new \App\Notifications\InterestDeselected($post));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pilihan kandidat berhasil dibatalkan.'
+        ]);
+    }
+
+    /**
      * Store a comment on a post.
      */
     public function storeComment(Request $request, Post $post): RedirectResponse

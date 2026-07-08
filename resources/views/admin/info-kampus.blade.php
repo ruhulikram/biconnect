@@ -46,6 +46,9 @@
                 <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Gambar Poster</label>
                 <div class="flex items-center gap-4">
                     <div class="flex-1">
+                        {{-- Hidden File Input --}}
+                        <input type="file" name="poster_image" id="poster_image" x-ref="fileInput" @change="handleFileSelect($event)" accept="image/*" required class="hidden">
+
                         {{-- Image Preview --}}
                         <template x-if="imagePreview">
                             <div class="relative w-full h-48 rounded-card overflow-hidden border border-border dark:border-gray-800 bg-gray-50 dark:bg-gray-850">
@@ -64,15 +67,15 @@
                         {{-- Drag & Drop Zone --}}
                         <template x-if="!imagePreview">
                             <label 
+                                for="poster_image"
                                 @dragover.prevent="isDragOver = true"
                                 @dragleave.prevent="isDragOver = false"
                                 @drop.prevent="isDragOver = false; handleDrop($event)"
-                                :class="isDragOver ? 'border-primary bg-primary-light/10' : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'"
+                                :class="isDragOver ? 'border-primary bg-primary-light/10' : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-880'"
                                 class="flex flex-col items-center justify-center h-28 border-2 border-dashed rounded-card cursor-pointer hover:border-primary hover:bg-primary-light/10 transition-all">
                                 <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
                                 <span class="text-xs text-gray-500 dark:text-gray-400">Tarik & letakkan gambar di sini, atau klik untuk memilih</span>
                                 <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Rasio 3:4 (Disarankan), maks 5MB</span>
-                                <input type="file" name="poster_image" x-ref="fileInput" @change="handleFileSelect($event)" accept="image/*" required class="hidden">
                             </label>
                         </template>
                     </div>

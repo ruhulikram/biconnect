@@ -144,4 +144,20 @@ class User extends Authenticatable
     {
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
+
+    /**
+     * Send a notification to complete the profile if the bio or skills are missing.
+     */
+    public function sendProfileCompletionReminder(): void
+    {
+        $profileIncomplete = empty($this->bio) || $this->skills()->doesntExist();
+        if ($profileIncomplete) {
+            $alreadySent = $this->notifications()
+                ->where('type', \App\Notifications\CompleteProfile::class)
+                ->exists();
+            if (!$alreadySent) {
+                $this->notify(new \App\Notifications\CompleteProfile());
+            }
+        }
+    }
 }
