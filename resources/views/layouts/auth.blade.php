@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Autentikasi') — BiConnect</title>
     <meta name="description" content="Platform kolaborasi project dan diskusi untuk mahasiswa Universitas Bina Sarana Informatika.">
+    <link rel="icon" href="{{ asset('images/icon-biconnect.webp') }}" type="image/webp">
     
     <!-- Google Fonts Preconnect & Stylesheet -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
