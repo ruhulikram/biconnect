@@ -13,7 +13,7 @@
                     {{-- Header --}}
                     <tr>
                         <td style="padding: 40px 40px 20px; text-align: center;">
-                            <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect" style="height: 36px; width: auto;">
+                            <img src="{{ asset('images/biconnect-logo.webp') }}" alt="BiConnect" style="height: 36px; width: auto;">
                         </td>
                     </tr>
 

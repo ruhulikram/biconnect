@@ -17,7 +17,7 @@
 
     {{-- Logo & Heading --}}
     <div class="text-center pt-2">
-        <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect" class="h-10 w-auto mx-auto mb-4">
+        <img src="{{ asset('images/biconnect-logo.webp') }}" alt="BiConnect" class="h-10 w-auto mx-auto mb-4">
         <h1 class="text-2xl font-bold font-heading text-gray-900">Apa keahlian kamu?</h1>
         <p class="text-sm text-gray-500 mt-1.5">
             Pilih minimal 3 keahlian untuk menyesuaikan feed dan project yang relevan denganmu.

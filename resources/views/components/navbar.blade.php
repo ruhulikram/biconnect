@@ -3,7 +3,7 @@
 
         {{-- Logo --}}
         <a href="{{ route('feed.index') }}" class="flex items-center shrink-0">
-            <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect" class="h-8 w-auto">
+            <img src="{{ asset('images/biconnect-logo.webp') }}" alt="BiConnect" width="128" height="32" class="h-8 w-auto">
         </a>
 
         <!--{{-- Desktop nav links --}}
@@ -31,6 +31,7 @@
 
             {{-- Notifications --}}
             <a href="{{ route('notifications.index') }}" id="nav-notifications-btn"
+               aria-label="Notifikasi"
                class="relative p-2 rounded-input hover:bg-gray-50 text-gray-500 transition-colors dark:hover:bg-slate-800 dark:text-slate-400">
                 <x-ui.icon name="bell" class="w-5 h-5" stroke-width="1.8" />
                 @if(auth()->user()?->unreadNotifications->count() > 0)
@@ -41,6 +42,7 @@
             {{-- Admin Dashboard Link (placed in navbar next to settings toggle) --}}
             @if(auth()->user()?->is_admin)
                 <a href="{{ route('admin.dashboard') }}" id="nav-admin-btn"
+                   aria-label="Dashboard Admin"
                    class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary-light transition-colors"
                    title="Dashboard Admin">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -56,6 +58,7 @@
                 <button @click="open = !open"
                         @click.outside="open = false"
                         id="nav-settings-btn"
+                        aria-label="Menu Pengaturan"
                         class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 dark:text-slate-400 transition-colors
                                {{ request()->routeIs('settings.*') ? 'text-primary bg-primary-light dark:bg-primary/10 dark:text-primary-light' : '' }}">
                     <x-ui.icon name="settings" class="w-5 h-5" stroke-width="1.8" />
@@ -140,7 +143,7 @@
             <a href="{{ route('profile.show') }}" id="nav-profile-btn"
                class="w-8 h-8 rounded-full bg-primary-light overflow-hidden ring-2 ring-transparent hover:ring-primary/30 transition-all ml-1 shrink-0">
                 <img src="{{ auth()->user()?->avatar_url }}"
-                     alt="Profil" class="w-full h-full object-cover" loading="lazy">
+                     alt="Profil" class="w-full h-full object-cover">
             </a>
         </div>
     </div>

@@ -7,8 +7,8 @@
 
             {{-- Col 1: Brand --}}
             <div class="space-y-4">
-                <img src="{{ asset('images/biconnect-logo-footer.png') }}" alt="BiConnect Logo" class="h-9 w-auto">
-                <address class="not-italic text-sm text-gray-500 leading-relaxed">
+                <img src="{{ asset('images/biconnect-logo-footer.webp') }}" alt="BiConnect Logo" width="144" height="36" class="h-9 w-auto">
+                <address class="not-italic text-sm text-gray-400 leading-relaxed">
                     Jl. Kramat Raya No.98, RT.2/RW.9, Kwitang,<br>
                     Kec. Senen, Kota Jakarta Pusat,<br>
                     DKI Jakarta 10450
@@ -89,10 +89,10 @@
         @endguest
 
         {{-- Copyright bar --}}
-        <div class="pt-6 text-center text-xs text-gray-600">
+        <div class="pt-6 text-center text-xs text-gray-400">
             Copyright © {{ date('Y') }}
             <a href="https://bsi.ac.id" target="_blank" rel="noopener noreferrer"
-               class="text-primary hover:text-primary-dark transition-colors mx-1">
+               class="text-blue-400 hover:text-blue-300 transition-colors mx-1">
                 Biro Teknologi Informasi Universitas Bina Sarana Informatika
             </a>
             · Designed with <span class="text-red-500">❤</span> All rights reserved.

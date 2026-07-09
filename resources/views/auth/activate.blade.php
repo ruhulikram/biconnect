@@ -11,7 +11,7 @@
 
     {{-- Logo --}}
     <a href="{{ url('/') }}" class="flex justify-center">
-        <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect" class="h-10 w-auto">
+        <img src="{{ asset('images/biconnect-logo.webp') }}" alt="BiConnect" width="160" height="40" class="h-10 w-auto">
     </a>
 
     {{-- Heading --}}

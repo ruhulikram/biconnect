@@ -36,7 +36,7 @@
 
     {{-- Logo --}}
     <div class="flex justify-center">
-        <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect" class="h-10 w-auto">
+        <img src="{{ asset('images/biconnect-logo.webp') }}" alt="BiConnect" class="h-10 w-auto">
     </div>
 
     {{-- Heading --}}

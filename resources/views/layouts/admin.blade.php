@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Panel') — BiConnect Admin</title>
+    
+    <!-- Google Fonts Preconnect & Stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -18,8 +24,8 @@
             {{-- Header/Logo --}}
             <div class="h-16 flex items-center px-6 border-b border-gray-150 dark:border-slate-800/80">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
-                    <img src="{{ asset('images/biconnect-logo.png') }}" alt="BiConnect"
-                        class="h-7 w-auto">
+                    <img src="{{ asset('images/biconnect-logo.webp') }}" alt="BiConnect"
+                        width="112" height="28" class="h-7 w-auto">
                     <span
                         class="text-[10px] uppercase tracking-widest font-heading font-semibold text-primary dark:text-primary-light bg-primary-light dark:bg-primary/20 px-2 py-0.5 rounded border border-primary/20">Admin</span>
                 </a>

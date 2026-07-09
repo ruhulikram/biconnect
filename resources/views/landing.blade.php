@@ -12,9 +12,9 @@
 
                     {{-- Badge --}}
                     <!-- <div
-                                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-pill bg-primary-light text-primary text-sm font-semibold mb-6 shadow-sm border border-primary/10 dark:bg-primary/10 dark:text-primary-light dark:border-primary/20">
-                                    <span>✦</span> Khusus Mahasiswa BSI Terverifikasi
-                                </div> -->
+                                        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-pill bg-primary-light text-primary text-sm font-semibold mb-6 shadow-sm border border-primary/10 dark:bg-primary/10 dark:text-primary-light dark:border-primary/20">
+                                        <span>✦</span> Khusus Mahasiswa BSI Terverifikasi
+                                    </div> -->
 
                     {{-- Headline --}}
                     <h1
@@ -41,40 +41,40 @@
                     </div>
 
                     <!-- {{-- Caption --}}
-                            <div class="flex items-center justify-center lg:justify-start gap-4 text-xs font-medium text-gray-400">
-                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
-                                        stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg> Gratis</span>
-                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
-                                        stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg> Khusus @bsi.ac.id</span>
-                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
-                                        stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg> Terverifikasi</span>
-                            </div> -->
+                                <div class="flex items-center justify-center lg:justify-start gap-4 text-xs font-medium text-gray-400">
+                                    <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg> Gratis</span>
+                                    <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg> Khusus @bsi.ac.id</span>
+                                    <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-green-500" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg> Terverifikasi</span>
+                                </div> -->
                 </div>
 
                 {{-- Right side: Auto-sliding banner --}}
                 <div class="flex-1 w-full max-w-lg" x-data="{
-                                                 active: 0,
-                                                 total: 3,
-                                                 timer: null,
-                                                 init() {
-                                                     this.timer = setInterval(() => {
-                                                         this.active = (this.active + 1) % this.total;
-                                                     }, 4500);
-                                                 },
-                                                 goTo(idx) {
-                                                     clearInterval(this.timer);
-                                                     this.active = idx;
-                                                     this.timer = setInterval(() => {
-                                                         this.active = (this.active + 1) % this.total;
-                                                     }, 4500);
-                                                 }
-                                             }">
+                                                     active: 0,
+                                                     total: 3,
+                                                     timer: null,
+                                                     init() {
+                                                         this.timer = setInterval(() => {
+                                                             this.active = (this.active + 1) % this.total;
+                                                         }, 4500);
+                                                     },
+                                                     goTo(idx) {
+                                                         clearInterval(this.timer);
+                                                         this.active = idx;
+                                                         this.timer = setInterval(() => {
+                                                             this.active = (this.active + 1) % this.total;
+                                                         }, 4500);
+                                                     }
+                                                 }">
                     <div class="relative rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] bg-indigo-200">
 
                         {{-- Slide 1 --}}
@@ -116,13 +116,16 @@
                         </div>
 
                         {{-- Dots navigasi --}}
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                            <button @click="goTo(0)" :class="active === 0 ? 'w-6 bg-primary' : 'w-2 bg-white/70'"
-                                class="h-2 rounded-full transition-all duration-300 shadow"></button>
-                            <button @click="goTo(1)" :class="active === 1 ? 'w-6 bg-primary' : 'w-2 bg-white/70'"
-                                class="h-2 rounded-full transition-all duration-300 shadow"></button>
-                            <button @click="goTo(2)" :class="active === 2 ? 'w-6 bg-primary' : 'w-2 bg-white/70'"
-                                class="h-2 rounded-full transition-all duration-300 shadow"></button>
+                        <div class="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-0.5 z-20">
+                            <button @click="goTo(0)" aria-label="Tampilkan slide 1" class="w-12 h-12 flex items-center justify-center focus:outline-none">
+                                <span :class="active === 0 ? 'w-6 bg-primary' : 'w-2 bg-white/70'" class="h-2 rounded-full transition-all duration-300 shadow"></span>
+                            </button>
+                            <button @click="goTo(1)" aria-label="Tampilkan slide 2" class="w-12 h-12 flex items-center justify-center focus:outline-none">
+                                <span :class="active === 1 ? 'w-6 bg-primary' : 'w-2 bg-white/70'" class="h-2 rounded-full transition-all duration-300 shadow"></span>
+                            </button>
+                            <button @click="goTo(2)" aria-label="Tampilkan slide 3" class="w-12 h-12 flex items-center justify-center focus:outline-none">
+                                <span :class="active === 2 ? 'w-6 bg-primary' : 'w-2 bg-white/70'" class="h-2 rounded-full transition-all duration-300 shadow"></span>
+                            </button>
                         </div>
                     </div>
                 </div>

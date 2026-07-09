@@ -6,6 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Autentikasi') — BiConnect</title>
     <meta name="description" content="Platform kolaborasi project dan diskusi untuk mahasiswa Universitas Bina Sarana Informatika.">
+    
+    <!-- Google Fonts Preconnect & Stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white md:bg-surface font-body text-gray-900 antialiased min-h-screen flex items-center justify-center dark:bg-gray-950 dark:text-gray-100 transition-colors p-4">
