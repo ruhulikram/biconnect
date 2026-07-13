@@ -17,8 +17,8 @@ class LandingController extends Controller
 
         $stats = Cache::remember('landing_stats', 300, function () {
             return [
-                'users'     => User::where('is_active', true)->where('onboarding_completed', true)->count(),
-                'projects'  => Post::where('type', 'project')->where('status', 'approved')->count(),
+                'users' => User::where('is_active', true)->where('onboarding_completed', true)->count(),
+                'projects' => Post::where('type', 'project')->where('status', 'approved')->count(),
                 'interests' => PostInterest::count(),
             ];
         });

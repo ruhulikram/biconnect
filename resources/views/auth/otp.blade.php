@@ -21,7 +21,7 @@
     <form action="{{ route('auth.verify-otp') }}" method="POST" class="space-y-5" x-ref="form">
         @csrf
         <input type="hidden" name="email" value="{{ $email }}">
-        <input type="hidden" name="code" :value="digits.join('')">
+        <input type="hidden" name="code" :value="code">
 
         {{-- 6 OTP boxes --}}
         <div class="flex justify-center gap-2.5">
@@ -97,6 +97,10 @@ function otpForm() {
         digits: ['', '', '', '', '', ''],
         countdown: 45,
         hasError: {{ $errors->has('code') ? 'true' : 'false' }},
+
+        get code() {
+            return this.digits.join('');
+        },
 
         get isComplete() {
             return this.digits.every(d => d !== '');
