@@ -82,13 +82,19 @@ class AuthController extends Controller
 
         $otp = OtpVerification::where('email', $validated['email'])
             ->where('code', $validated['code'])
-            ->valid()
+            ->whereNull('used_at')
             ->latest('created_at')
             ->first();
 
         if (! $otp) {
             return back()->withErrors([
-                'code' => 'Kode OTP tidak valid atau sudah kedaluwarsa.',
+                'code' => 'Kode OTP tidak valid.',
+            ]);
+        }
+
+        if ($otp->expires_at->isPast()) {
+            return back()->withErrors([
+                'code' => 'Kode OTP sudah kedaluwarsa.',
             ]);
         }
 

@@ -140,4 +140,84 @@ class AuthWorkflowTest extends TestCase
         $response->assertDontSee('Dashboard Admin');
         $response->assertDontSee(route('admin.dashboard'));
     }
+
+    /**
+     * Test OTP verification success.
+     */
+    public function test_verify_otp_success(): void
+    {
+        Mail::fake();
+        $email = 'new.student@bsi.ac.id';
+
+        // 1. Request OTP
+        $response = $this->post(route('auth.send-otp'), [
+            'email' => $email,
+        ]);
+
+        $response->assertRedirect(route('auth.otp'));
+        $this->assertEquals($email, session('otp_email'));
+
+        // Retrieve the generated OTP from DB
+        $otp = OtpVerification::where('email', $email)->latest('created_at')->first();
+        $this->assertNotNull($otp);
+
+        // 2. Verify OTP
+        $response = $this->post(route('auth.verify-otp'), [
+            'email' => $email,
+            'code' => $otp->code,
+        ]);
+
+        $response->assertRedirect(route('auth.create-password'));
+        $this->assertNotNull(session('verified_user_id'));
+
+        // Refresh and check it is marked as used
+        $otp->refresh();
+        $this->assertNotNull($otp->used_at);
+    }
+
+    /**
+     * Test OTP verification fails with invalid code.
+     */
+    public function test_verify_otp_invalid_code(): void
+    {
+        $email = 'new.student@bsi.ac.id';
+
+        OtpVerification::create([
+            'email' => $email,
+            'code' => '123456',
+            'expires_at' => now()->addMinutes(5),
+        ]);
+
+        $response = $this->post(route('auth.verify-otp'), [
+            'email' => $email,
+            'code' => '654321', // wrong code
+        ]);
+
+        $response->assertSessionHasErrors(['code']);
+        $response->assertSessionHasErrors(['code' => 'Kode OTP tidak valid.']);
+    }
+
+    /**
+     * Test OTP verification fails with expired code.
+     */
+    public function test_verify_otp_expired_code(): void
+    {
+        $email = 'new.student@bsi.ac.id';
+        $code = '123456';
+
+        // Create expired OTP (1 minute ago)
+        OtpVerification::create([
+            'email' => $email,
+            'code' => $code,
+            'expires_at' => now()->subMinute(),
+        ]);
+
+        $response = $this->post(route('auth.verify-otp'), [
+            'email' => $email,
+            'code' => $code,
+        ]);
+
+        $response->assertSessionHasErrors(['code']);
+        $response->assertSessionHasErrors(['code' => 'Kode OTP sudah kedaluwarsa.']);
+    }
 }
