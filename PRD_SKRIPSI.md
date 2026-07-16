@@ -1,10 +1,87 @@
 # ANALISIS PROGRAM TERSTRUKTUR BICONNECT
 
-Dokumen ini berisi analisis fungsionalitas utama sistem **BiConnect** yang dikembangkan menggunakan arsitektur MVC (Model-View-Controller) dengan framework Laravel. Setiap modul dilengkapi penjelasan metode logika bisnis yang digunakan, disertai listing program (*source code*) asli dari aplikasi untuk kebutuhan penulisan skripsi akademik.
+Dokumen ini berisi analisis fungsionalitas utama sistem **BiConnect** yang dikembangkan menggunakan arsitektur MVC (Model-View-Controller) dengan framework Laravel. Setiap modul dilengkapi penjelasan metode logika bisnis yang digunakan, desain skema database relasional, serta listing program (*source code*) asli dari aplikasi untuk kebutuhan penulisan skripsi akademik.
+
+---
+
+## 1. Desain Database & Skema Relasi (Database Schema)
+
+Sistem BiConnect menggunakan database relasional untuk menghubungkan mahasiswa, keahlian, kolaborasi proyek, diskusi, dan notifikasi. Di bawah ini adalah struktur tabel utama beserta relasi antar-tabel, termasuk penambahan field baru seperti `whatsapp` pada tabel `users` dan `status` pada tabel `post_interests`.
+
+### A. Tabel Utama & Penjelasan Field
+
+#### 1. Tabel `users`
+Menyimpan data biodata profil mahasiswa Universitas Bina Sarana Informatika.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `name` (Varchar, Nama Mahasiswa)
+*   `email` (Varchar, Email Kampus `@bsi.ac.id`, Unique)
+*   `email_verified_at` (Timestamp, Waktu Verifikasi Email, Nullable)
+*   `password` (Varchar, Hash Password)
+*   `remember_token` (Varchar, Token Sesi Login, Nullable)
+*   `nim` (Varchar, Nomor Induk Mahasiswa, Nullable)
+*   `program` (Varchar, Program Studi, Nullable)
+*   `semester` (Integer, Semester Berjalan, Nullable)
+*   `campus_area` (Varchar, Lokasi Kampus BSI, Nullable)
+*   `bio` (Text, Deskripsi Profil Singkat, Nullable)
+*   `whatsapp` (Varchar, Nomor WhatsApp Kontak Langsung, Nullable) — **[TAMBAHAN FIELD BARU]**
+*   `avatar` (Varchar, Path File Foto Profil, Nullable)
+*   `cover` (Varchar, Path File Gambar Sampul, Nullable)
+*   `dark_mode` (Boolean, Preferensi Tema Gelap, Default: false)
+*   `is_admin` (Boolean, Status Hak Akses Admin, Default: false)
+*   `is_verified` (Boolean, Status Keaktifan Akun, Default: false)
+*   `onboarding_completed` (Boolean, Status Penyelesaian Onboarding Profil, Default: false)
+*   `created_at` & `updated_at` (Timestamp)
+
+#### 2. Tabel `posts`
+Menyimpan postingan bertipe Proyek Kolaborasi (`project`) maupun Diskusi Akademik (`discussion`).
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `user_id` (BigInt, Foreign Key ke `users.id`, Cascade)
+*   `type` (Enum: `project`, `discussion`, Tipe Postingan)
+*   `title` (Varchar, Judul Proyek, Nullable jika diskusi)
+*   `body` (Text, Konten Utama Postingan)
+*   `image` (Varchar, Path Gambar Lampiran, Nullable)
+*   `deadline` (Date, Batas Waktu Pendaftaran Proyek, Nullable)
+*   `campus_area` (Varchar, Lokasi Target Kolaborasi Kampus, Nullable)
+*   `project_type` (Varchar, Kategori Proyek, Nullable)
+*   `is_active` (Boolean, Status Keaktifan Postingan, Default: true)
+*   `status` (Enum: `pending`, `approved`, `rejected`, `closed`) — **[TAMBAHAN FIELD STATUS]**
+*   `created_at` & `updated_at` (Timestamp)
+
+#### 3. Tabel `post_interests`
+Menyimpan data pelamar/peminat proyek kolaborasi (kandidat).
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `post_id` (BigInt, Foreign Key ke `posts.id`, Cascade)
+*   `user_id` (BigInt, Foreign Key ke `users.id`, Cascade)
+*   `status` (Enum: `pending`, `selected`) — **[TAMBAHAN FIELD BARU]**
+*   `created_at` & `updated_at` (Timestamp)
+
+#### 4. Tabel `otp_verifications`
+Menyimpan data kode One-Time Password untuk aktivasi akun baru.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `email` (Varchar, Target Email Kampus)
+*   `code` (Varchar, Kode OTP 6 Digit)
+*   `expires_at` (Timestamp, Waktu Kedaluwarsa)
+*   `used_at` (Timestamp, Waktu Digunakan, Nullable)
+*   `created_at` (Timestamp, Waktu Pembuatan)
+
+#### 5. Tabel `social_links`
+Menyimpan tautan media sosial eksternal milik mahasiswa untuk portofolio.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `user_id` (BigInt, Foreign Key ke `users.id`, Cascade)
+*   `platform` (Varchar, Nama Platform: `github`, `linkedin`, `instagram`, `behance`)
+*   `url` (Varchar, Tautan URL Profil)
+*   `created_at` & `updated_at` (Timestamp)
+
+#### 6. Tabel Pivot Keahlian (`user_skills` & `post_skills`)
+Menyinkronkan relasi *many-to-many* untuk kategori keahlian (*skills*).
+*   `user_skills`: Menghubungkan `users.id` ke `skills.id` untuk keahlian mahasiswa.
+*   `post_skills`: Menghubungkan `posts.id` ke `skills.id` untuk keahlian yang dibutuhkan proyek.
 
 ---
 
 ## 2. Contoh Program Terstruktur
+
+Di bawah ini merupakan listing program pendukung fungsionalitas utama BiConnect:
 
 ### 1. Autentikasi Pengguna & Aktivasi Akun (OTP Verification)
 Fungsionalitas ini digunakan untuk mengontrol akses pengguna ke dalam sistem. Alur masuk dimulai dengan registrasi/aktivasi menggunakan email kampus resmi BSI (`@bsi.ac.id`). Kode OTP 6-digit acak akan dikirimkan ke email untuk verifikasi keamanan sebelum pengguna diizinkan membuat kata sandi baru.
@@ -101,15 +178,24 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
+        // Mengambil data OTP terbaru yang belum terpakai untuk email ini
         $otp = OtpVerification::where('email', $validated['email'])
             ->where('code', $validated['code'])
-            ->valid()
+            ->whereNull('used_at')
             ->latest('created_at')
             ->first();
 
+        // Validasi keberadaan kode OTP
         if (! $otp) {
             return back()->withErrors([
-                'code' => 'Kode OTP tidak valid atau sudah kedaluwarsa.',
+                'code' => 'Kode OTP tidak valid.',
+            ]);
+        }
+
+        // Validasi batas waktu kedaluwarsa kode OTP secara aman berbasis PHP (Carbon)
+        if ($otp->expires_at->isPast()) {
+            return back()->withErrors([
+                'code' => 'Kode OTP sudah kedaluwarsa.',
             ]);
         }
 
@@ -423,7 +509,7 @@ class PostController extends Controller
 ---
 
 ### 4. Sistem Approval & Moderasi Proyek oleh Administrator
-Fungsi ini khusus dijalankan oleh akun dengan hak akses administrator untuk memvalidasi dan menyetujui postingan bertipe proyek. Admin dapat menyetujui (`approve`) proyek agar tayang secara publik di feed, atau menolak (`reject`) dengan melampirkan alasan penolakan yang dikirimkan via notifikasi sistem ke pembuat proyek.
+Fungsi ini khusus dijalankan oleh akun dengan hak akses administrator untuk memvalidasi dan menyetujui postingan bertipe proyek. Admin dapat menyetujui (`approve`) proyek agar tayang secara publik di feed, atau menolak (`reject`) dengan melampirkan alasan penolakan yang dikirimkan via notifikasi sistem ke pemilik proyek.
 
 ```
 [Gambar 4.7: Halaman Dashboard Panel Admin]
@@ -499,8 +585,8 @@ class AdminController extends Controller
 
 ### 5. Siklus Hidup Proyek (Ketertarikan & Penutupan Proyek)
 Modul ini mendefinisikan siklus hidup interaksi proyek:
-1. **Ketertarikan (Interest)**: Pengguna lain dapat menyatakan ketertarikan bergabung ke suatu proyek dengan memicu notifikasi kepada pembuat proyek. Pemilik proyek kemudian dapat memilih kandidat terpilih (`selectInterest`) dan sistem akan memberikan kontak Whatsapp & tautan profil kandidat tersebut.
-2. **Penutupan Proyek (Close Project)**: Pemilik proyek dapat menutup proyek secara manual bila kuota tim dirasa sudah terpenuhi, mengubah status menjadi `closed` dan menyembunyikannya dari feed publik.
+1.  **Ketertarikan (Interest)**: Pengguna lain dapat menyatakan ketertarikan bergabung ke suatu proyek dengan memicu notifikasi kepada pembuat proyek. Pemilik proyek kemudian dapat memilih kandidat terpilih (`selectInterest`) dan sistem akan memberikan kontak Whatsapp & tautan profil kandidat tersebut.
+2.  **Penutupan Proyek (Close Project)**: Pemilik proyek dapat menutup proyek secara manual bila kuota tim dirasa sudah terpenuhi, mengubah status menjadi `closed` dan menyembunyikannya dari feed publik.
 
 ```
 [Gambar 4.9: Halaman Detail Proyek (Pilihan Tertarik)]
@@ -685,6 +771,85 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', 'Pengaturan tampilan diperbarui.');
+    }
+}
+```
+
+---
+
+### 7. Fitur Pencarian Global (Pencarian Pengguna/Kandidat & Postingan)
+Fitur ini memfasilitasi mahasiswa untuk mencari kolaborator (kandidat) berdasarkan nama, email, program studi, maupun mencari postingan diskusi/proyek berdasarkan kecocokan teks judul atau isi konten secara asinkron (*real-time AJAX*) yang mengembalikan format respons JSON.
+
+Berikut implementasi kode program untuk fitur pencarian global pada berkas `app/Http/Controllers/SearchController.php`:
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Post;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class SearchController extends Controller
+{
+    /**
+     * Memproses pencarian data postingan dan pengguna aktif.
+     * Mengembalikan data berformat JSON untuk ditampilkan di modal pencarian dropdown.
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->get('q', '');
+
+        // Batasi pencarian minimal 2 karakter untuk mengoptimalkan kinerja database
+        if (mb_strlen(trim($query)) < 2) {
+            return response()->json([
+                'users' => [],
+                'posts' => [],
+            ]);
+        }
+
+        // Mencari pengguna aktif berdasarkan nama, email, atau program studi
+        $users = User::where('is_active', true)
+            ->where('onboarding_completed', true)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('email', 'like', "%{$query}%")
+                  ->orWhere('program', 'like', "%{$query}%");
+            })
+            ->limit(5)
+            ->get()
+            ->map(fn($user) => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'avatar_url' => $user->avatar_url,
+                'program'    => $user->program,
+                'url'        => route('profile.show.user', $user),
+            ]);
+
+        // Mencari postingan aktif dan yang disetujui admin berdasarkan judul atau isi badan postingan
+        $posts = Post::with('user')
+            ->where('is_active', true)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                  ->orWhere('body', 'like', "%{$query}%");
+            })
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(fn($post) => [
+                'id'    => $post->id,
+                'title' => $post->title ?: \Illuminate\Support\Str::limit($post->body, 60),
+                'type'  => $post->type,
+                'url'   => route('post.show', $post),
+            ]);
+
+        return response()->json([
+            'users' => $users,
+            'posts' => $posts,
+        ]);
     }
 }
 ```
