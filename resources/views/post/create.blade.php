@@ -14,6 +14,7 @@
         <h1 class="text-lg font-bold font-heading text-gray-900 dark:text-white">Post Baru</h1>
         <button type="submit" form="create-post-form"
                 :disabled="!isValid"
+                :title="isValid ? 'Klik untuk memposting' : 'Harap lengkapi kolom yang belum terisi'"
                 :class="isValid ? 'bg-primary text-white hover:bg-primary-dark active:scale-[0.98]' : 'bg-gray-200 text-gray-400 dark:bg-slate-800 dark:text-slate-650 cursor-not-allowed'"
                 class="px-5 py-2 text-sm font-bold rounded-pill transition-all duration-150 select-none">
             Posting
@@ -66,6 +67,21 @@
             </div>
         @endif
 
+        {{-- Dynamic Client-side Live Validation Feedback --}}
+        <div x-show="!isValid" x-transition.opacity class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-card p-3.5 text-xs text-amber-800 dark:text-amber-300 space-y-1.5">
+            <div class="flex items-center gap-1.5 font-bold text-amber-900 dark:text-amber-200">
+                <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+                </svg>
+                <span>Petunjuk Pengisian (Lengkapi agar tombol Posting aktif):</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 pl-1">
+                <template x-for="(msg, index) in validationMessages" :key="index">
+                    <li x-text="msg"></li>
+                </template>
+            </ul>
+        </div>
+
         {{-- === Discussion Fields === --}}
         <div x-show="type === 'discussion'" x-transition.opacity class="space-y-5">
             {{-- Title (optional for discussion) --}}
@@ -84,7 +100,17 @@
                           name="body" rows="6"
                           placeholder="Apa yang ingin kamu diskusikan? Ceritakan ide, pertanyaan, atau pengalaman..."
                           class="w-full rounded-input border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 transition-all duration-150 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none leading-relaxed"></textarea>
-                <p class="text-xs text-gray-400 dark:text-slate-500" x-text="body.length + '/10 karakter minimum'" :class="body.length >= 10 ? 'text-emerald-500' : 'text-gray-450'"></p>
+                <div class="flex items-center justify-between text-xs pt-1">
+                    <span x-show="body.trim().length < 10" class="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                        <span x-text="body.trim().length === 0 ? 'Wajib diisi minimal 10 karakter' : 'Kurang ' + (10 - body.trim().length) + ' karakter lagi'"></span>
+                    </span>
+                    <span x-show="body.trim().length >= 10" class="text-emerald-500 flex items-center gap-1 font-semibold">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                        Sesuai (min. 10 karakter)
+                    </span>
+                    <span class="ml-auto text-gray-400 dark:text-slate-500" x-text="body.length + ' karakter'"></span>
+                </div>
             </div>
         </div>
 
@@ -97,6 +123,16 @@
                        name="title" maxlength="150"
                        placeholder="Contoh: Dicari partner frontend React untuk app marketplace"
                        class="w-full h-11 rounded-input border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 transition-all duration-150 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                <div class="flex items-center justify-between text-xs pt-0.5">
+                    <span x-show="title.trim().length === 0" class="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                        Judul project wajib diisi
+                    </span>
+                    <span x-show="title.trim().length > 0" class="text-emerald-500 flex items-center gap-1 font-semibold">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                        Judul terisi
+                    </span>
+                </div>
                 @error('title')
                     <p class="text-xs text-red-500 flex items-center gap-1 mt-1">
                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
@@ -112,7 +148,17 @@
                           name="body" rows="5"
                           placeholder="Jelaskan project kamu: apa yang sedang dibangun, siapa yang dibutuhkan, dan apa tanggung jawabnya..."
                           class="w-full rounded-input border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 transition-all duration-150 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none leading-relaxed"></textarea>
-                <p class="text-xs" :class="body.length >= 10 ? 'text-emerald-500' : 'text-gray-400'" x-text="body.length + '/10 karakter minimum'"></p>
+                <div class="flex items-center justify-between text-xs pt-0.5">
+                    <span x-show="body.trim().length < 10" class="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                        <span x-text="body.trim().length === 0 ? 'Wajib diisi minimal 10 karakter' : 'Kurang ' + (10 - body.trim().length) + ' karakter lagi'"></span>
+                    </span>
+                    <span x-show="body.trim().length >= 10" class="text-emerald-500 flex items-center gap-1 font-semibold">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                        Sesuai (min. 10 karakter)
+                    </span>
+                    <span class="ml-auto text-gray-400 dark:text-slate-500" x-text="body.length + ' karakter'"></span>
+                </div>
             </div>
 
             {{-- Skill Multi-Select --}}
@@ -255,7 +301,7 @@
             <x-ui.button variant="outlined" size="md" :href="route('feed.index')" class="w-full sm:w-auto">
                 Batal
             </x-ui.button>
-            <x-ui.button variant="primary" size="md" type="submit" x-bind:disabled="!isValid" class="w-full sm:w-auto">
+            <x-ui.button variant="primary" size="md" type="submit" x-bind:disabled="!isValid" :title="isValid ? 'Klik untuk memposting' : 'Harap lengkapi kolom yang belum terisi'" class="w-full sm:w-auto">
                 Posting Sekarang
             </x-ui.button>
         </div>
@@ -287,10 +333,26 @@ function createPost() {
 
         get isValid() {
             if (this.type === 'discussion') {
-                return this.body.length >= 10;
+                return this.body.trim().length >= 10;
             }
             // project
-            return this.title.length > 0 && this.body.length >= 10;
+            return this.title.trim().length > 0 && this.body.trim().length >= 10;
+        },
+
+        get validationMessages() {
+            let msgs = [];
+            if (this.type === 'project' && this.title.trim().length === 0) {
+                msgs.push('Judul project wajib diisi.');
+            }
+            if (this.body.trim().length < 10) {
+                const remaining = 10 - this.body.trim().length;
+                if (this.body.trim().length === 0) {
+                    msgs.push(this.type === 'project' ? 'Deskripsi project wajib diisi minimal 10 karakter.' : 'Konten diskusi wajib diisi minimal 10 karakter.');
+                } else {
+                    msgs.push(`Konten/deskripsi kurang ${remaining} karakter lagi (min. 10 karakter).`);
+                }
+            }
+            return msgs;
         },
 
         addSkill(skill) {
