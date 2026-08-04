@@ -13,9 +13,9 @@
         </a>
         <h1 class="text-lg font-bold font-heading text-gray-900 dark:text-white">Post Baru</h1>
         <button type="submit" form="create-post-form"
-                :disabled="!isValid"
-                :title="isValid ? 'Klik untuk memposting' : 'Harap lengkapi kolom yang belum terisi'"
-                :class="isValid ? 'bg-primary text-white hover:bg-primary-dark active:scale-[0.98]' : 'bg-gray-200 text-gray-400 dark:bg-slate-800 dark:text-slate-650 cursor-not-allowed'"
+                x-bind:disabled="!isValid"
+                x-bind:title="isValid ? 'Klik untuk memposting' : 'Harap lengkapi kolom yang belum terisi'"
+                x-bind:class="isValid ? 'bg-primary text-white hover:bg-primary-dark active:scale-[0.98]' : 'bg-gray-200 text-gray-400 dark:bg-slate-800 dark:text-slate-650 cursor-not-allowed'"
                 class="px-5 py-2 text-sm font-bold rounded-pill transition-all duration-150 select-none">
             Posting
         </button>
@@ -301,7 +301,7 @@
             <x-ui.button variant="outlined" size="md" :href="route('feed.index')" class="w-full sm:w-auto">
                 Batal
             </x-ui.button>
-            <x-ui.button variant="primary" size="md" type="submit" x-bind:disabled="!isValid" :title="isValid ? 'Klik untuk memposting' : 'Harap lengkapi kolom yang belum terisi'" class="w-full sm:w-auto">
+            <x-ui.button variant="primary" size="md" type="submit" x-bind:disabled="!isValid" x-bind:title="isValid ? 'Klik untuk memposting' : 'Harap lengkapi kolom yang belum terisi'" class="w-full sm:w-auto">
                 Posting Sekarang
             </x-ui.button>
         </div>
